@@ -9,7 +9,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import ARRAY
 from exceptions.supplier_exception \
-    import MissingInfo, WrongArgType, UserDefinedIDError, \
+    import MissingInfo, WrongArgType, UserDefinedIdError, \
     OutOfRange, DataValidationError
 
 db = SQLAlchemy()
@@ -47,6 +47,9 @@ class Supplier(db.Model):
         self._check_email(self.email)
         self._check_address(self.address)
         self._check_product_ids(self.products)
+
+        if isinstance(self.products, Set):
+            self.products = list(self.products)
 
         if self.email is None and self.address is None:
             raise MissingInfo("At least one contact method "
@@ -182,7 +185,7 @@ class Supplier(db.Model):
         '''check the type of product ids'''
         if product_ids is None:
             product_ids = []
-        elif not isinstance(product_ids, List):
+        elif not isinstance(product_ids, (List, Set)):
             raise WrongArgType("class<'List'> or class<'Set'> expected "
                                "for product ids, got %s" % type(product_ids))
         for id in product_ids:

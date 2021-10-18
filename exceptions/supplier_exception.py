@@ -18,6 +18,6 @@ class DataValidationError(Exception):
         super().__init__(*args)
 
 
-class UserDefinedIDError(Exception):
+class UserDefinedIdError(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)

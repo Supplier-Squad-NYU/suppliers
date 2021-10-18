@@ -3,154 +3,187 @@ This file defines the model for Supplier
 '''
 
 import json
-from typing import Dict, List, Set, Union
-from models.product import Product
-from exceptions.supplier_exception import MissingContactInfo, MissingProductId, WrongArgType, OutOfRange
+import logging
+from typing import List, Set, Union
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.dialects.postgresql import ARRAY
+from exceptions.supplier_exception \
+    import MissingInfo, WrongArgType, UserDefinedIDError, \
+    OutOfRange, DataValidationError
+
+db = SQLAlchemy()
+logger = logging.getLogger("flask.app")
 
 
-class Supplier:
+def init_db(app):
+    """Initialies the SQLAlchemy app"""
+    Supplier.init_db(app)
+
+
+class Supplier(db.Model):
     '''
     Supplier model that encapsulates
     necessary info about a supplier
     '''
+    app: Flask = None
+    __tablename__ = "supplier"
+    __table_args__ = (
+            db.CheckConstraint('NOT(email IS NULL AND address IS NULL)'),
+            )
 
-    def __init__(self, name: str, id: int = None,
-                 email: str = "", address: str = "",
-                 products: Union[List[Product], Set[Product]] = []) -> None:
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(63), nullable=False)
+    email = db.Column(db.String(63), nullable=True)
+    address = db.Column(db.String(63), nullable=True)
+    products = db.Column(ARRAY(db.Integer), nullable=True)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        if self.id is not None:
+            raise UserDefinedIDError("User cannot set the value of id")
+        self._check_name(self.name)
+        self._check_email(self.email)
+        self._check_address(self.address)
+        self._check_product_ids(self.products)
+
+        if self.email is None and self.address is None:
+            raise MissingInfo("At least one contact method "
+                              "(email or address) is required")
+
+    def __repr__(self):
+        return "<Supplier %r id=%s>" % (self.name, self.id)
+
+    def __eq__(self, other):
+        if not isinstance(other, Supplier):
+            return False
+
+        return self.id == other.id and \
+            self.name == other.name and \
+            self.email == other.email and \
+            self.address == other.address and \
+            self.products == other.products
+
+    @classmethod
+    def init_db(cls, app: Flask):
+        """Initializes the database session
+        :param app: the Flask app
+        :type data: Flask
         """
-        Parameters
-        ----------
-        name : str
-            The name of the supplier
-        id : int (0, 1e10), optional
-            The id of the supplier (default is None).
-            Its value is obtained from the DB and needs to be set eventually
-        email: str, optional
-            The email of the supplier (default is None)
-        address: str, optional
-            The address of the supplier (default is None)
-        products: Union[List[Product], Set[Product]], optional
-            The products of the supplier (default is [])
+        logger.info("Initializing database")
+        cls.app = app
+        db.init_app(app)
+        app.app_context().push()
+        db.create_all()  # make our sqlalchemy tables
+
+    @classmethod
+    def all(cls) -> list:
+        """Returns all of the suppliers in the database"""
+        logger.info("Processing all suppliers")
+        return cls.query.all()
+
+    @staticmethod
+    def serialize(supplier: "Supplier") -> dict:
+        return supplier.to_dict()
+
+    @staticmethod
+    def deserialize_from_dict(data: dict) -> "Supplier":
         """
-        if id is not None:
-            self._check_id(id)
-        self._check_name(name)
-        self._check_email(email)
-        self._check_address(address)
-        self._check_products(products)
-        if (email == "" and address == ""):
-            raise MissingContactInfo("At least one contact method "
-                                     "(email or address) is required")
+        Deserializes a supplier from a dictionary
+        Args:
+            data (dict): A dictionary containing the supplier data
+        """
+        try:
+            supplier = Supplier(id=data["id"],
+                                name=data["name"],
+                                email=data["email"],
+                                address=data["address"],
+                                products=data["products"])
+        except AttributeError as error:
+            raise DataValidationError("Invalid attribute: " + error.args[0])
+        except KeyError as error:
+            raise DataValidationError("Invalid supplier: "
+                                      "missing " + error.args[0])
+        except TypeError:
+            raise DataValidationError(
+                "Invalid supplier: body of request contained bad or no data"
+            )
+        return supplier
 
-        self._id = id
-        self._name = name
-        self._email = email
-        self._address = address
-        self._products = {}
-        for p in products:
-            self.add_product(p)
+    def deserialize_from_json(data: str) -> "Supplier":
+        """
+        Deserializes a supplier from a dictionary
+        Args:
+            data (str): A json-formatted string
+        """
+        dictionary = json.loads(data)
+        return Supplier.deserialize_from_dict(dictionary)
 
-    @property
-    def id(self) -> int:
-        '''id of the supplier'''
-        return self._id
+    def create(self):
+        """
+        Creates a supplier to the database
+        """
+        logger.info("Creating %s", self.name)
+        self.id = None  # id must be none to generate next primary key
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
 
-    @property
-    def name(self) -> str:
-        '''name of the supplier'''
-        return self._name
-
-    @property
-    def email(self) -> int:
-        '''email of the supplier'''
-        return self._email
-
-    @property
-    def address(self) -> str:
-        '''address of the supplier'''
-        return self._address
-
-    @property
-    def products(self) -> Dict[str, Product]:
-        '''products of the supplier'''
-        return self._products
-
-    @id.setter
-    def id(self, id: int) -> None:
-        self._check_id(id)
-        self._id = id
-
-    @name.setter
-    def name(self, name: str) -> None:
-        self._check_name(name)
-        self._name = name
-
-    @email.setter
-    def email(self, email: str) -> None:
-        self._check_email(email)
-        self._email = email
-
-    @address.setter
-    def address(self, address: str) -> None:
-        self._check_address(address)
-        self._address = address
-
-    @products.setter
-    def products(self, products: Union[List[Product], Set[Product]]) -> None:
-        self._check_products(products)
-        for p in products:
-            self.add_product(p)
-
-    def add_product(self, product: Product) -> None:
-        '''add a product to the supplier'''
-        self._check_product(product)
-        if product.id is None:
-            raise MissingProductId("Product %s has no id" % product.name)
-        self._products[product.id] = product
+    def to_dict(self) -> dict:
+        """Serializes a supplier into a dictionary"""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "email": self.email,
+            "address": self.address,
+            "products": self.products,  # convert enum to string
+        }
 
     def to_json(self) -> str:
         '''convert the supplier to JSON formatted string'''
-        def formatter(supplier: Supplier):
-            return {k.lstrip('_'): v for k, v in vars(supplier).items()}
-        return json.dumps(self, default=formatter, indent=4)
-
-    def _check_id(self, id: int) -> None:
-        '''check the type and the range of id'''
-        if not isinstance(id, int):
-            raise WrongArgType("<class 'int'> expected for id, "
-                               "got %s" % type(id))
-        elif (id >= 1e10 or id <= 0):
-            raise OutOfRange("id is not within range (0, 1e10), "
-                             "got %s" % id)
+        return json.dumps(self.to_dict(), indent=4)
 
     def _check_name(self, name: str) -> None:
         '''check the type of name'''
-        if not isinstance(name, str):
-            raise WrongArgType("<class 'str'> expected for name, "
+        if name is None:
+            raise MissingInfo("Supplier name is required")
+        elif not isinstance(name, str):
+            raise WrongArgType("class<'str'> expected for supplier name, "
                                "got %s" % type(name))
 
     def _check_email(self, email: str) -> None:
         '''check the type of email'''
         # email format parser may needed
-        if not isinstance(email, str):
+        if email is not None and not isinstance(email, str):
             raise WrongArgType("<class 'str'> expected for email, "
                                "got %s" % type(email))
 
     def _check_address(self, address: str) -> None:
         '''check the type of address'''
-        if not isinstance(address, str):
+        if address is not None and not isinstance(address, str):
             raise WrongArgType("<class 'str'> expected for address, "
                                "got %s" % type(address))
 
-    def _check_product(self, product: Product) -> None:
+    def _check_product_id(self, product_id: int) -> None:
         '''check the type of product'''
-        if not isinstance(product, Product):
-            raise WrongArgType("class<'Product'> expected for product, "
-                               "got %s" % type(product))
+        if not isinstance(product_id, int):
+            raise WrongArgType("class<'int'> expected for product ID, "
+                               "got %s" % type(product_id))
+        elif (product_id <= 0 or product_id >= 1e15):
+            raise OutOfRange("Product id is not within range (0, 1e15), "
+                             "got %s" % id)
+        # also need to check if product id is in db
 
-    def _check_products(self, products:
-                        Union[List[Product], Set[Product]]) -> None:
-        '''check the type of products'''
-        if not isinstance(products, (List, Set)):
+    def _check_product_ids(self, product_ids:
+                           Union[List[int], Set[int]]) -> None:
+        '''check the type of product ids'''
+        if product_ids is None:
+            product_ids = []
+        elif not isinstance(product_ids, List):
             raise WrongArgType("class<'List'> or class<'Set'> expected "
-                               "for products, got %s" % type(products))
+                               "for product ids, got %s" % type(product_ids))
+        for id in product_ids:
+            self._check_product_id(id)

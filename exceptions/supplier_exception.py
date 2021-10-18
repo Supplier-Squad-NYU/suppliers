@@ -1,4 +1,4 @@
-class MissingContactInfo(Exception):
+class MissingInfo(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
@@ -13,6 +13,11 @@ class OutOfRange(Exception):
         super().__init__(*args)
 
 
-class MissingProductId(Exception):
+class DataValidationError(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class UserDefinedIDError(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)

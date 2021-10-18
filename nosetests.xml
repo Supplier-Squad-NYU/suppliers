@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><testsuite name="nosetests" tests="1" errors="1" failures="0" skip="0"><testcase classname="test_supplier.TestSupplierModel" name="test_construct_a_supplier" time="0.001"><error type="builtins.AttributeError" message="'TestSupplierModel' object has no attribute 'assertTrue'"><![CDATA[Traceback (most recent call last):
+  File "/usr/lib/python3.9/unittest/case.py", line 59, in testPartExecutor
+    yield
+  File "/usr/lib/python3.9/unittest/case.py", line 593, in run
+    self._callTestMethod(testMethod)
+  File "/usr/lib/python3.9/unittest/case.py", line 550, in _callTestMethod
+    method()
+  File "/home/vagrant/venv/lib/python3.9/site-packages/nose/case.py", line 198, in runTest
+    self.test(*self.arg)
+  File "/vagrant/tests/test_supplier.py", line 54, in test_construct_a_supplier
+    self.assertTrue(supplier is not None)
+AttributeError: 'TestSupplierModel' object has no attribute 'assertTrue'
+]]></error><system-out><![CDATA[<models.supplier.Supplier object at 0x7f9a5ebfafd0>
+]]></system-out></testcase></testsuite>

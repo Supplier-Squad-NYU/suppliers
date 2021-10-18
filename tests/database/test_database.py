@@ -1,5 +1,4 @@
 from database.database import Database
-from models import supplier
 from models.supplier import Supplier
 database = Database()
 

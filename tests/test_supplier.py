@@ -77,7 +77,7 @@ class TestSupplierModel(unittest.TestCase):
         self.assertRaises(WrongArgType, Supplier, name=1, address="US")
         self.assertRaises(WrongArgType, Supplier, name="Tom", address=1)
 
-    def test_serialization(self):
+    def test_serialization_to_dict(self):
         """Convert a supplier object to a dict object"""
         supplier = Supplier(name="Tom", email="Tom@gmail.com", products=[1, 5])
         output = supplier.to_dict()

@@ -8,11 +8,11 @@ While debugging just these tests it's convinient to use this:
 """
 import os
 import unittest
-from models.supplier import Supplier, db
-from models import app
+from service.supplier import Supplier, db
+from service import app
 import logging
-from exceptions.supplier_exception import MissingInfo, WrongArgType
-# from exceptions.supplier_exception import MissingContactInfo
+from exceptions.supplier_exception \
+    import MissingInfo, OutOfRange, WrongArgType, UserDefinedIdError
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
@@ -51,6 +51,12 @@ class TestSupplierModel(unittest.TestCase):
     ######################################################################
     #  T E S T   C A S E S
     ######################################################################
+    def supplier_repr(self):
+        supplier = Supplier(name='foo', address="USA")
+        supplier.create()
+        print(supplier)
+        self.assertEqual(repr(supplier), "<Supplier foo, id=1>")
+
     def test_construct_a_supplier(self):
         """Create a supplier and assert that it exists"""
         supplier = Supplier(name="Tom", email="Tom@gmail.com")
@@ -76,29 +82,65 @@ class TestSupplierModel(unittest.TestCase):
         '''construct a supplier with input of wrong type'''
         self.assertRaises(WrongArgType, Supplier, name=1, address="US")
         self.assertRaises(WrongArgType, Supplier, name="Tom", address=1)
+        self.assertRaises(WrongArgType, Supplier, name="foo", email=1)
+        self.assertRaises(WrongArgType, Supplier, name="foo",
+                          email="abc", products=["d"])
+        self.assertRaises(WrongArgType, Supplier, name="foo",
+                          email="abc", products=1)
+
+    def test_construct_supplier_with_invalid_product_id(self):
+        self.assertRaises(OutOfRange, Supplier, name="foo",
+                          email="abc", products=[-2])
+
+    def test_construct_supplier_with_user_defined_id(self):
+        '''construct a supplier with user defined id'''
+        self.assertRaises(UserDefinedIdError, Supplier,
+                          id=2, name="Tom", address="US")
 
     def test_serialization_to_dict(self):
         """Convert a supplier object to a dict object"""
         supplier = Supplier(name="Tom", email="Tom@gmail.com", products=[1, 5])
-        output = supplier.to_dict()
-        another = Supplier.serialize(supplier)
-        self.assertEqual(output, another)
+        output = supplier.serialize_to_dict()
         self.assertTrue(isinstance(output, dict))
         self.assertEqual(output["name"], "Tom")
         self.assertEqual(output["email"], "Tom@gmail.com")
         self.assertEqual(output["products"], [1, 5])
 
     def test_deserialization_from_dict(self):
-        """Convert a dict object to supplier object"""
+        """Convert a dict object to a supplier object"""
         supplier = Supplier(name="Tom", email="Tom@gmail.com", products=[1, 5])
-        dictionary = Supplier.serialize(supplier)
+        dictionary = supplier.serialize_to_dict()
         other = Supplier.deserialize_from_dict(dictionary)
         self.assertEqual(supplier, other)
+
+    def test_deserialize_from_dict_missing_data(self):
+        """Test deserialization from dict of a supplier with missing data"""
+        data = {"address": "USA"}
+        self.assertRaises(MissingInfo,
+                          Supplier.deserialize_from_dict, data=data)
+
+    def test_deserialize_from_dict_bad_data(self):
+        """Test deserialization from dict of bad data"""
+        data = "this is not a dictionary"
+        self.assertRaises(WrongArgType,
+                          Supplier.deserialize_from_dict, data=data)
+
+    def test_deserialize_from_json_missing_data(self):
+        """Test deserialization from json of a supplier with missing data"""
+        json_data = "{\"name\":\"Tom\"}"
+        self.assertRaises(MissingInfo,
+                          Supplier.deserialize_from_json, data=json_data)
+
+    def test_deserialize_from_json_bad_data(self):
+        """Test deserialization from json of a supplier with bad data"""
+        json_data = [1, 2, 3]
+        self.assertRaises(WrongArgType,
+                          Supplier.deserialize_from_json, data=json_data)
 
     def test_json_converter(self):
         """Convert a supplier object to JSON string and vice versas"""
         supplier = Supplier(name="Tom", email="Tom@gmail.com", products=[1, 5])
-        json_output = supplier.to_json()
+        json_output = supplier.serialize_to_json()
         other = Supplier.deserialize_from_json(json_output)
         self.assertEqual(supplier, other)
         pass
@@ -108,7 +150,8 @@ class TestSupplierModel(unittest.TestCase):
         suppliers = Supplier.all()
         self.assertEqual(suppliers, [])
 
-        supplier = Supplier(name="Ken", email="Ken@gmail.com", products=[2, 4])
+        supplier = Supplier(name="Ken",
+                            email="Ken@gmail.com", products=set([2, 4]))
         self.assertEqual(supplier.id, None)
         supplier.create()
         self.assertEqual(supplier.id, 1)

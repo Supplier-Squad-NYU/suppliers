@@ -9,8 +9,8 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import ARRAY
 from exceptions.supplier_exception \
-    import MissingInfo, WrongArgType, UserDefinedIdError, \
-    OutOfRange, DataValidationError
+    import MissingInfo, WrongArgType, \
+    UserDefinedIdError, OutOfRange
 
 db = SQLAlchemy()
 logger = logging.getLogger("flask.app")
@@ -42,7 +42,7 @@ class Supplier(db.Model):
         super().__init__(**kwargs)
 
         if self.id is not None:
-            raise UserDefinedIDError("User cannot set the value of id")
+            raise UserDefinedIdError("User cannot set the value of id")
         self._check_name(self.name)
         self._check_email(self.email)
         self._check_address(self.address)
@@ -56,7 +56,7 @@ class Supplier(db.Model):
                               "(email or address) is required")
 
     def __repr__(self):
-        return "<Supplier %r id=%s>" % (self.name, self.id)
+        return "<Supplier %r, id=%s>" % (self.name, self.id)
 
     def __eq__(self, other):
         if not isinstance(other, Supplier):
@@ -68,6 +68,9 @@ class Supplier(db.Model):
             self.address == other.address and \
             self.products == other.products
 
+    ##################################################
+    # CLASS METHODS
+    ##################################################
     @classmethod
     def init_db(cls, app: Flask):
         """Initializes the database session
@@ -86,10 +89,9 @@ class Supplier(db.Model):
         logger.info("Processing all suppliers")
         return cls.query.all()
 
-    @staticmethod
-    def serialize(supplier: "Supplier") -> dict:
-        return supplier.to_dict()
-
+    ##################################################
+    # STATIC METHODS
+    ##################################################
     @staticmethod
     def deserialize_from_dict(data: dict) -> "Supplier":
         """
@@ -97,32 +99,37 @@ class Supplier(db.Model):
         Args:
             data (dict): A dictionary containing the supplier data
         """
-        try:
-            supplier = Supplier(id=data["id"],
-                                name=data["name"],
-                                email=data["email"],
-                                address=data["address"],
-                                products=data["products"])
-        except AttributeError as error:
-            raise DataValidationError("Invalid attribute: " + error.args[0])
-        except KeyError as error:
-            raise DataValidationError("Invalid supplier: "
-                                      "missing " + error.args[0])
-        except TypeError:
-            raise DataValidationError(
-                "Invalid supplier: body of request contained bad or no data"
-            )
+        if not isinstance(data, dict):
+            raise WrongArgType("<class 'dict'> expected for data, "
+                               "got %s" % type(data))
+        id = data["id"] if "id" in data else None
+        name = data["name"] if "name" in data else None
+        email = data["email"] if "email" in data else None
+        address = data["address"] if "address" in data else None
+        products = data["products"] if "products" in data else None
+        supplier = Supplier(id=id,
+                            name=name,
+                            email=email,
+                            address=address,
+                            products=products)
         return supplier
 
+    @staticmethod
     def deserialize_from_json(data: str) -> "Supplier":
         """
         Deserializes a supplier from a dictionary
         Args:
             data (str): A json-formatted string
         """
+        if not isinstance(data, str):
+            raise WrongArgType("<class 'dict'> expected for data, "
+                               "got %s" % type(data))
         dictionary = json.loads(data)
         return Supplier.deserialize_from_dict(dictionary)
 
+    ##################################################
+    # PUBLIC INSTANCE METHODS
+    ##################################################
     def create(self):
         """
         Creates a supplier to the database
@@ -135,20 +142,23 @@ class Supplier(db.Model):
         except Exception:
             db.session.rollback()
 
-    def to_dict(self) -> dict:
+    def serialize_to_dict(self) -> dict:
         """Serializes a supplier into a dictionary"""
         return {
             "id": self.id,
             "name": self.name,
             "email": self.email,
             "address": self.address,
-            "products": self.products,  # convert enum to string
+            "products": self.products,
         }
 
-    def to_json(self) -> str:
+    def serialize_to_json(self) -> str:
         '''convert the supplier to JSON formatted string'''
-        return json.dumps(self.to_dict(), indent=4)
+        return json.dumps(self.serialize_to_dict(), indent=4)
 
+    ##################################################
+    # PRIVATE INSTANCE METHODS
+    ##################################################
     def _check_name(self, name: str) -> None:
         '''check the type of name'''
         if name is None:

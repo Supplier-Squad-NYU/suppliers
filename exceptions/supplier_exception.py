@@ -13,11 +13,6 @@ class OutOfRange(Exception):
         super().__init__(*args)
 
 
-class DataValidationError(Exception):
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
-
-
 class UserDefinedIdError(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)

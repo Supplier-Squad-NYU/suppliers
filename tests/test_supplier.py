@@ -6,8 +6,6 @@ Test cases can be run with:
 While debugging just these tests it's convinient to use this:
     nosetests --stop tests/test_suppliers.py:TestSupplierModel
 """
-import os
-import time
 import unittest
 from werkzeug.exceptions import NotFound
 from service.supplier import Supplier, db
@@ -32,7 +30,6 @@ class TestSupplierModel(unittest.TestCase):
     """Test Cases for Supplier Model"""
     @classmethod
     def setUpClass(cls):
-        db.session.close()
         """This runs once before the entire test suite"""
         app.config["TESTING"] = True
         app.config["DEBUG"] = False

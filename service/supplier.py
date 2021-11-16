@@ -85,12 +85,6 @@ class Supplier(db.Model):
         db.create_all()  # make our sqlalchemy tables
 
     @classmethod
-    def all(cls) -> List["Supplier"]:
-        """Returns all of the suppliers in the database"""
-        logger.info("Processing all suppliers")
-        return cls.query.all()
-
-    @classmethod
     def list(cls) -> List["Supplier"]:
         """List all suppliers"""
         return Supplier.query.all()
@@ -119,7 +113,7 @@ class Supplier(db.Model):
         #                                   # need other way to log
         ret = Supplier.query.filter_by(**supplier_info).all()
         if len(ret) == 0:
-            raise NotFound
+            raise NotFound("No results found")
         return ret
 
     @classmethod
@@ -131,7 +125,11 @@ class Supplier(db.Model):
                  or 404_NOT_FOUND if not found
         :rtype: Supplier
         """
-        return Supplier.find_all(supplier_info)[0]
+        try:
+            return Supplier.find_all(supplier_info)[0]
+        except NotFound:
+            raise NotFound(
+                "Supplier with provided fields not found: {}".format(supplier_info))
 
     ##################################################
     # STATIC METHODS

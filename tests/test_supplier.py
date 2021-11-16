@@ -149,7 +149,7 @@ class TestSupplierModel(unittest.TestCase):
 
     def test_create_suppliers(self):
         """Create a supplier and add it to the database"""
-        suppliers = Supplier.all()
+        suppliers = Supplier.list()
         self.assertEqual(suppliers, [])
 
         supplier = Supplier(name="Ken",
@@ -157,14 +157,14 @@ class TestSupplierModel(unittest.TestCase):
         self.assertEqual(supplier.id, None)
         supplier.create()
         self.assertEqual(supplier.id, 1)
-        suppliers = Supplier.all()
+        suppliers = Supplier.list()
         self.assertEqual(len(suppliers), 1)
 
         supplier = Supplier(name="Tom", email="Tom@gmail.com", products=[11])
         self.assertEqual(supplier.id, None)
         supplier.create()
         self.assertEqual(supplier.id, 2)
-        suppliers = Supplier.all()
+        suppliers = Supplier.list()
         self.assertEqual(len(suppliers), 2)
 
     def test_find_single_supplier(self):
@@ -174,7 +174,7 @@ class TestSupplierModel(unittest.TestCase):
             supplier.create()
         logging.debug(suppliers)
         # make sure they got saved
-        self.assertEqual(len(Supplier.all()), 3)
+        self.assertEqual(len(Supplier.list()), 3)
         # find the 2nd supplier in the list
         supplier = Supplier.find_first({'id': suppliers[1].id})
         self.assertIsNot(supplier, None)

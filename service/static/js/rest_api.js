@@ -1,4 +1,6 @@
 $(function () {
+    const baseUrl = "/suppliers";
+    const contentType = "application/json"
 
     // ****************************************
     //  U T I L I T Y   F U N C T I O N S
@@ -15,6 +17,7 @@ $(function () {
 
     /// Clears all form fields
     function clear_form_data() {
+        $("#supplier_id").val("");
         $("#supplier_name").val("");
         $("#supplier_address").val("");
         $("#supplier_email").val("");
@@ -32,23 +35,22 @@ $(function () {
     // ****************************************
 
     $("#create-btn").click(function () {
+        let name = $("#supplier_name").val();
+        let address = $("#supplier_address").val();
+        let email = $("#supplier_email").val();
+        let products = JSON.parse("[" + $("#supplier_products").val() + "]");
 
-        var name = $("#supplier_name").val();
-        var address = $("#supplier_address").val();
-        var email = $("#supplier_email").val();
-        var products = JSON.parse("[" + $("#supplier_products").val() + "]");
-
-        var data = {
+        let data = {
             "name": name,
             "address": address,
             "email": email,
             "products": products
         };
 
-        var ajax = $.ajax({
+        let ajax = $.ajax({
             type: "POST",
-            url: "/api/suppliers",
-            contentType: "application/json",
+            url: baseUrl,
+            contentType: contentType,
             data: JSON.stringify(data),
         });
 
@@ -68,23 +70,23 @@ $(function () {
     // ****************************************
 
     $("#update-btn").click(function () {
+        let supplier_id = $("#supplier_id").val();
+        let name = $("#supplier_name").val();
+        let address = $("#supplier_address").val();
+        let email = $("#supplier_email").val();
+        let products = JSON.parse("[" + $("#supplier_products").val() + "]");
 
-        var name = $("#supplier_name").val();
-        var address = $("#supplier_address").val();
-        var email = $("#supplier_email").val();
-        var products = JSON.parse("[" + $("#supplier_products").val() + "]");
-
-        var data = {
+        let data = {
             "name": name,
             "address": address,
             "email": email,
             "products": products
         };
 
-        var ajax = $.ajax({
+        let ajax = $.ajax({
                 type: "PUT",
-                url: "/api/suppliers/" + supplier_id,
-                contentType: "application/json",
+                url: `${baseUrl}/${supplier_id}`,
+                contentType: contentType,
                 data: JSON.stringify(data)
             })
 
@@ -105,12 +107,12 @@ $(function () {
 
     $("#retrieve-btn").click(function () {
 
-        var supplier_id = $("#supplier_id").val();
+        let supplier_id = $("#supplier_id").val();
 
-        var ajax = $.ajax({
+        let ajax = $.ajax({
             type: "GET",
-            url: "/api/suppliers/" + supplier_id,
-            contentType: "application/json",
+            url: `${baseUrl}/${supplier_id}`,
+            contentType: contentType,
             data: ''
         })
 
@@ -133,12 +135,12 @@ $(function () {
 
     $("#delete-btn").click(function () {
 
-        var supplier_id = $("#supplier_id").val();
+        let supplier_id = $("#supplier_id").val();
 
-        var ajax = $.ajax({
+        let ajax = $.ajax({
             type: "DELETE",
-            url: "/api/suppliers/" + supplier_id,
-            contentType: "application/json",
+            url: `${baseUrl}/${supplier_id}`,
+            contentType: contentType,
             data: '',
         })
 
@@ -157,7 +159,6 @@ $(function () {
     // ****************************************
 
     $("#clear-btn").click(function () {
-        $("#supplier_id").val("");
         clear_form_data()
     });
 
@@ -167,12 +168,12 @@ $(function () {
 
     $("#search-btn").click(function () {
 
-        var name = $("#supplier_name").val();
-        var address = $("#supplier_address").val();
-        var email = $("#supplier_email").val();
-        var products = $("#supplier_products").val().trim();
+        let name = $("#supplier_name").val();
+        let address = $("#supplier_address").val();
+        let email = $("#supplier_email").val();
+        let products = $("#supplier_products").val().trim();
 
-        var queryString = ""
+        let queryString = ""
 
         if (name) {
             queryString += 'name=' + name
@@ -199,48 +200,49 @@ $(function () {
             }
         }
 
-        var ajax = $.ajax({
+        let ajax = $.ajax({
             type: "GET",
-            url: "/api/suppliers?" + queryString,
-            contentType: "application/json",
+            url: `${baseUrl}?${queryString}`,
+            contentType: contentType,
             data: ''
         })
 
+        ajax.fail(function(res){
+            clear_form_data()
+            flash_message(res.responseJSON.message)
+        });
+
         ajax.done(function(res){
-            //alert(res.toSource())
+            // alert(res.toSource())
             $("#search_results").empty();
-            $("#search_results").append('<table class="table-striped" cellpadding="10">');
-            var header = '<tr>'
+            $("#search_results").append('<table class="table-striped" cellpadding="20">');
+            let header = '<tr>'
             header += '<th style="width:10%">ID</th>'
-            header += '<th style="width:40%">Name</th>'
-            header += '<th style="width:40%">Address</th>'
+            header += '<th style="width:10%">Name</th>'
+            header += '<th style="width:10%">Address</th>'
             header += '<th style="width:10%">Email</th></tr>'
             header += '<th style="width:10%">Products</th></tr>'
             $("#search_results").append(header);
-            var firstSupplier = "";
-            for(var i = 0; i < res.length; i++) {
-                var supplier = res[i];
-                var row = "<tr><td>"+supplier.id+"</td><td>"+supplier.name+"</td><td>"+supplier.address+"</td><td>"+supplier.email+"</td></tr>"+supplier.products+"</td></tr>";
+            let firstSupplier = ""
+            for(let i = 0; i < res.length; i++) {
+                let supplier = res[i];
+                let row = "<tr><td>"+supplier.id+"</td><td>"+supplier.name+"</td><td>"+supplier.address+"</td><td>"+supplier.email+"</td></tr>"+supplier.products.map(String).join(", ")+"</td></tr>";
                 $("#search_results").append(row);
                 if (i == 0) {
-                    firstSupplier = supplier;
+                    firstSupplier = supplier
                 }
             }
 
             $("#search_results").append('</table>');
 
             // copy the first result to the form
+
             if (firstSupplier != "") {
                 update_form_data(firstSupplier)
             }
 
             flash_message("Success")
         });
-
-        ajax.fail(function(res){
-            flash_message(res.responseJSON.message)
-        });
-
     });
 
 })

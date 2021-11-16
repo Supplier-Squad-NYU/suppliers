@@ -52,7 +52,8 @@ class Supplier(db.Model):
 
         self.products = sorted(set(self.products))
 
-        if self.email is None and self.address is None:
+        if (self.email is None and self.address is None) or\
+                (self.email == "" and self.address == ""):
             raise MissingInfo("At least one contact method "
                               "(email or address) is required")
 
@@ -189,10 +190,10 @@ class Supplier(db.Model):
         Updates self with data in dict
         Saves changes to the database
         """
-        self.name = data["name"] if "name" in data else self.name
-        self.email = data["email"] if "email" in data else self.email
-        self.address = data["address"] if "address" in data else self.address
-        self.products = data["products"] if "products" in data\
+        self.name = data["name"] if "name" in data and data["name"] != "" else self.name
+        self.email = data["email"] if "email" in data and data["email"] != "" else self.email
+        self.address = data["address"] if "address" in data and data["address"] != "" else self.address
+        self.products = data["products"] if "products" in data and data["products"] != []\
                                             else self.products
 
         self._check_name(self.name)
@@ -202,7 +203,8 @@ class Supplier(db.Model):
 
         self.products = sorted(set(self.products))
 
-        if self.email is None and self.address is None:
+        if (self.email is None and self.address is None) or\
+                (self.email == "" and self.address == ""):
             raise MissingInfo("At least one contact method "
                               "(email or address) is required")
         db.session.commit()

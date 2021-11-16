@@ -77,7 +77,7 @@ class TestSupplierServer(unittest.TestCase):
 
     def test_index(self):
         """Test the Home Page"""
-        resp = self.app.get("/api/")
+        resp = self.app.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_create_supplier(self):
@@ -231,16 +231,16 @@ class TestSupplierServer(unittest.TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 2)
-        self.assertEqual(data['1']['name'],
+        self.assertEqual(data[0]['name'],
                          test_supplier['name'],
                          "Name does not match")
-        self.assertEqual(data['1']["products"],
+        self.assertEqual(data[0]["products"],
                          sorted(test_supplier['products']),
                          "Products does not match")
-        self.assertEqual(data['2']['name'],
+        self.assertEqual(data[1]['name'],
                          test_supplier['name'],
                          "Name does not match")
-        self.assertEqual(data['2']["products"],
+        self.assertEqual(data[1]["products"],
                          sorted(test_supplier['products']),
                          "Products does not match")
 
@@ -380,17 +380,18 @@ class TestSupplierServer(unittest.TestCase):
 
         # verify that the test_supplier can be found before deletion
         resp = self.app.get(
-            "{}/{}".format(BASE_URL, test_supplier.id), content_type=CONTENT_TYPE_JSON
+            "{}/{}".format(BASE_URL, test_supplier.id),
+            content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
-        self.assertEqual(data["name"], test_supplier.name, "Name does not match")
-        self.assertEqual(data["email"], test_supplier.email, "Email does not match")
-        self.assertEqual(data["address"], test_supplier.address, "Address does not match")
-        self.assertEqual(data["products"], test_supplier.products, "Products does not match")
+        self.assertEqual(data["name"], test_supplier.name)
+        self.assertEqual(data["email"], test_supplier.email)
+        self.assertEqual(data["address"], test_supplier.address)
+        self.assertEqual(data["products"], test_supplier.products)
 
         # Delete supplier
-        resp = self.app.delete("{}/{}".format(BASE_URL,test_supplier.id))
+        resp = self.app.delete("{}/{}".format(BASE_URL, test_supplier.id))
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
         # verify that it has been deleted and cannot be found
@@ -398,5 +399,5 @@ class TestSupplierServer(unittest.TestCase):
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
         # verify that it has been deleted and it still returns 204
-        resp = self.app.delete("{}/{}".format(BASE_URL,test_supplier.id))
+        resp = self.app.delete("{}/{}".format(BASE_URL, test_supplier.id))
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)

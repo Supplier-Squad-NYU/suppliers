@@ -21,7 +21,7 @@ from service.supplier import Supplier
 ######################################################################
 # Application Routes
 ######################################################################
-@app.route("/")
+@app.route("/api/")
 def index() -> Tuple[Response, int]:
     """ Return a message about the service """
     app.logger.info("Request for Index page")

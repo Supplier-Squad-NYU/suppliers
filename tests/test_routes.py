@@ -77,7 +77,7 @@ class TestSupplierServer(unittest.TestCase):
 
     def test_index(self):
         """Test the Home Page"""
-        resp = self.app.get("/")
+        resp = self.app.get("/api/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_create_supplier(self):

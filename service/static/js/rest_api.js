@@ -1,6 +1,4 @@
 $(function () {
-    const baseUrl = "/api/suppliers";
-    const contentType = "application/json"
 
     // ****************************************
     //  U T I L I T Y   F U N C T I O N S
@@ -8,13 +6,19 @@ $(function () {
 
     // Updates the form with data from the response
     function update_form_data(res) {
-        $("#supplier_id").val(res._id);
+        $("#supplier_id").val(res.id);
         $("#supplier_name").val(res.name);
+        $("#supplier_address").val(res.address);
+        $("#supplier_email").val(res.email);
+        $("#supplier_products").val(res.products.map(String).join(", "));
     }
 
     /// Clears all form fields
     function clear_form_data() {
         $("#supplier_name").val("");
+        $("#supplier_address").val("");
+        $("#supplier_email").val("");
+        $("#supplier_products").val("");
     }
 
     // Updates the flash message area
@@ -24,21 +28,27 @@ $(function () {
     }
 
     // ****************************************
-    // Create a Supplier
+    // Create a supplier
     // ****************************************
 
     $("#create-btn").click(function () {
 
-        let name = $("#supplier_name").val();
+        var name = $("#supplier_name").val();
+        var address = $("#supplier_address").val();
+        var email = $("#supplier_email").val();
+        var products = JSON.parse("[" + $("#supplier_products").val() + "]");
 
-        let data = {
+        var data = {
             "name": name,
+            "address": address,
+            "email": email,
+            "products": products
         };
 
-        let ajax = $.ajax({
+        var ajax = $.ajax({
             type: "POST",
-            url: baseUrl,
-            contentType: contentType,
+            url: "/api/suppliers",
+            contentType: "application/json",
             data: JSON.stringify(data),
         });
 
@@ -48,28 +58,33 @@ $(function () {
         });
 
         ajax.fail(function(res){
-            flash_message(res.responseJSON.error);
+            flash_message(res.responseJSON.message)
         });
     });
 
 
     // ****************************************
-    // Update a Supplier 
+    // Update a supplier
     // ****************************************
 
     $("#update-btn").click(function () {
 
-        let supplier_id = $("#supplier_id").val();
-        let name = $("#supplier_name").val();
+        var name = $("#supplier_name").val();
+        var address = $("#supplier_address").val();
+        var email = $("#supplier_email").val();
+        var products = JSON.parse("[" + $("#supplier_products").val() + "]");
 
-        let data = {
+        var data = {
             "name": name,
+            "address": address,
+            "email": email,
+            "products": products
         };
 
-        let ajax = $.ajax({
+        var ajax = $.ajax({
                 type: "PUT",
-                url: `${baseUrl}/${supplier_id}`,
-                contentType: contentType,
+                url: "/api/suppliers/" + supplier_id,
+                contentType: "application/json",
                 data: JSON.stringify(data)
             })
 
@@ -79,23 +94,23 @@ $(function () {
         });
 
         ajax.fail(function(res){
-            flash_message(res.responseJSON.error)
+            flash_message(res.responseJSON.message)
         });
 
     });
 
     // ****************************************
-    // Retrieve a Supplier
+    // Retrieve a supplier
     // ****************************************
 
     $("#retrieve-btn").click(function () {
 
-        let supplier_id = $("#supplier_id").val();
+        var supplier_id = $("#supplier_id").val();
 
-        let ajax = $.ajax({
+        var ajax = $.ajax({
             type: "GET",
-            url: `${baseUrl}/${supplier_id}`,
-            contentType: contentType,
+            url: "/api/suppliers/" + supplier_id,
+            contentType: "application/json",
             data: ''
         })
 
@@ -107,33 +122,33 @@ $(function () {
 
         ajax.fail(function(res){
             clear_form_data()
-            flash_message(res.responseJSON.error)
+            flash_message(res.responseJSON.message)
         });
 
     });
 
     // ****************************************
-    // Delete a Supplier
+    // Delete a supplier
     // ****************************************
 
     $("#delete-btn").click(function () {
 
-        let supplier_id = $("#supplier_id").val();
+        var supplier_id = $("#supplier_id").val();
 
-        let ajax = $.ajax({
+        var ajax = $.ajax({
             type: "DELETE",
-            url: `${baseUrl}/${supplier_id}`, 
-            contentType: contentType,
+            url: "/api/suppliers/" + supplier_id,
+            contentType: "application/json",
             data: '',
         })
 
         ajax.done(function(res){
             clear_form_data()
-            flash_message("Supplier has been Deleted!")
+            flash_message("supplier has been Deleted!")
         });
 
         ajax.fail(function(res){
-            flash_message(res.responseJSON.error)
+            flash_message("Server error!")
         });
     });
 
@@ -147,23 +162,47 @@ $(function () {
     });
 
     // ****************************************
-    // Search for a Supplier 
+    // Search for a supplier
     // ****************************************
 
     $("#search-btn").click(function () {
 
-        let name = $("#supplier_name").val();
+        var name = $("#supplier_name").val();
+        var address = $("#supplier_address").val();
+        var email = $("#supplier_email").val();
+        var products = $("#supplier_products").val().trim();
 
-        let queryString = ""
+        var queryString = ""
 
         if (name) {
             queryString += 'name=' + name
         }
+        if (address) {
+            if (queryString.length > 0) {
+                queryString += '&address=' + address
+            } else {
+                queryString += 'address=' + address
+            }
+        }
+        if (email) {
+            if (queryString.length > 0) {
+                queryString += '&email=' + email
+            } else {
+                queryString += 'email=' + email
+            }
+        }
+        if (products) {
+            if (queryString.length > 0) {
+                queryString += '&products=' + products
+            } else {
+                queryString += 'products=' + products
+            }
+        }
 
-        let ajax = $.ajax({
+        var ajax = $.ajax({
             type: "GET",
-            url: `${baseUrl}?${queryString}`,
-            contentType: contentType,
+            url: "/api/suppliers?" + queryString,
+            contentType: "application/json",
             data: ''
         })
 
@@ -171,14 +210,17 @@ $(function () {
             //alert(res.toSource())
             $("#search_results").empty();
             $("#search_results").append('<table class="table-striped" cellpadding="10">');
-            let header = '<tr>'
+            var header = '<tr>'
             header += '<th style="width:10%">ID</th>'
             header += '<th style="width:40%">Name</th>'
+            header += '<th style="width:40%">Address</th>'
+            header += '<th style="width:10%">Email</th></tr>'
+            header += '<th style="width:10%">Products</th></tr>'
             $("#search_results").append(header);
-            let firstSupplier = "";
-            for(let i = 0; i < res.length; i++) {
-                let supplier = res[i];
-                let row = "<tr><td>"+supplier._id+"</td><td>"+supplier.name+"</td></tr>";
+            var firstSupplier = "";
+            for(var i = 0; i < res.length; i++) {
+                var supplier = res[i];
+                var row = "<tr><td>"+supplier.id+"</td><td>"+supplier.name+"</td><td>"+supplier.address+"</td><td>"+supplier.email+"</td></tr>"+supplier.products+"</td></tr>";
                 $("#search_results").append(row);
                 if (i == 0) {
                     firstSupplier = supplier;
@@ -196,7 +238,7 @@ $(function () {
         });
 
         ajax.fail(function(res){
-            flash_message(res.responseJSON.error)
+            flash_message(res.responseJSON.message)
         });
 
     });

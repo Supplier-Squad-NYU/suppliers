@@ -6,7 +6,6 @@ Test cases can be run with:
 While debugging just these tests it's convinient to use this:
     nosetests --stop tests/test_suppliers.py:TestSupplierModel
 """
-import os
 import unittest
 from werkzeug.exceptions import NotFound
 from service.supplier import Supplier, db
@@ -17,10 +16,12 @@ from service.supplier_exception \
     import MissingInfo, OutOfRange, WrongArgType,\
     UserDefinedIdError, DuplicateProduct
 
-DATABASE_URI = os.getenv(
-    "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
-)
+# DATABASE_URI = os.getenv(
+#     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
+# )
 
+
+DATABASE_URI = "postgres://etclysux:xSZYUbeApTzANgkdP07RWxajX7Lo6V6T@rajje.db.elephantsql.com/etclysux"
 
 ######################################################################
 #  S U P P L I E R   M O D E L   T E S T   C A S E S
@@ -34,12 +35,14 @@ class TestSupplierModel(unittest.TestCase):
         app.config["DEBUG"] = False
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
         app.logger.setLevel(logging.CRITICAL)
+
         Supplier.init_db(app)
 
     @classmethod
     def tearDownClass(cls):
         """This runs once after the entire test suite"""
         db.session.close()
+        db.engine.dispose()
 
     def setUp(self):
         """This runs before each test"""
@@ -216,7 +219,7 @@ class TestSupplierModel(unittest.TestCase):
         }
         self.assertRaises(MissingInfo, supplier.update, update_json)
 
-    def test_add_product(self):
+    def test_products_added_correctly(self):
         """
         Create a supplier and add to the product list
         """

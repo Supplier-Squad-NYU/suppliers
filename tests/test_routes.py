@@ -13,9 +13,10 @@ from .factories import SupplierFactory
 logging.disable(logging.CRITICAL)
 
 # DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///../db/test.db')
-DATABASE_URI = os.getenv(
-    "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
-)
+# DATABASE_URI = os.getenv(
+#     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
+# )
+DATABASE_URI = "postgres://etclysux:xSZYUbeApTzANgkdP07RWxajX7Lo6V6T@rajje.db.elephantsql.com/etclysux"
 BASE_URL = "/suppliers"
 CONTENT_TYPE_JSON = "application/json"
 
@@ -41,6 +42,7 @@ class TestSupplierServer(unittest.TestCase):
     def tearDownClass(cls):
         """Run once after all tests"""
         db.session.close()
+        db.engine.dispose()
 
     def setUp(self):
         """Runs before each test"""

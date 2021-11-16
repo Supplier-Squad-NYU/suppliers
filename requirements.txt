@@ -2,7 +2,6 @@
 Werkzeug==1.0.1
 
 # Dependencies
-libpq-dev==9.4.3
 Flask==1.1.2
 flask-restx==0.5.1
 # Flask-Log-Request-ID==0.10.1

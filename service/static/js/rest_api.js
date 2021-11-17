@@ -1,6 +1,6 @@
 $(function () {
-    const baseUrl = "/suppliers";
-    const contentType = "application/json"
+    const baseUrl = "/api/suppliers";
+    const contentType = "application/json";
 
     // ****************************************
     //  U T I L I T Y   F U N C T I O N S
@@ -31,7 +31,7 @@ $(function () {
     }
 
     // ****************************************
-    // Create a supplier
+    // Create a Supplier
     // ****************************************
 
     $("#create-btn").click(function () {
@@ -55,18 +55,18 @@ $(function () {
         });
 
         ajax.done(function(res){
-            update_form_data(res)
-            flash_message("Success")
+            update_form_data(res);
+            flash_message("Success");
         });
 
         ajax.fail(function(res){
-            flash_message(res.responseJSON.message)
+            flash_message(res.responseJSON.error);
         });
     });
 
 
     // ****************************************
-    // Update a supplier
+    // Update a Supplier
     // ****************************************
 
     $("#update-btn").click(function () {
@@ -88,21 +88,21 @@ $(function () {
                 url: `${baseUrl}/${supplier_id}`,
                 contentType: contentType,
                 data: JSON.stringify(data)
-            })
+            });
 
         ajax.done(function(res){
-            update_form_data(res)
-            flash_message("Success")
+            update_form_data(res);
+            flash_message("Success");
         });
 
         ajax.fail(function(res){
-            flash_message(res.responseJSON.message)
+            flash_message(res.responseJSON.error);
         });
 
     });
 
     // ****************************************
-    // Retrieve a supplier
+    // Retrieve a Supplier
     // ****************************************
 
     $("#retrieve-btn").click(function () {
@@ -114,23 +114,23 @@ $(function () {
             url: `${baseUrl}/${supplier_id}`,
             contentType: contentType,
             data: ''
-        })
+        });
 
         ajax.done(function(res){
             //alert(res.toSource())
-            update_form_data(res)
-            flash_message("Success")
+            update_form_data(res);
+            flash_message("Success");
         });
 
         ajax.fail(function(res){
-            clear_form_data()
-            flash_message(res.responseJSON.message)
+            clear_form_data();
+            flash_message(res.responseJSON.error);
         });
 
     });
 
     // ****************************************
-    // Delete a supplier
+    // Delete a Supplier
     // ****************************************
 
     $("#delete-btn").click(function () {
@@ -142,15 +142,15 @@ $(function () {
             url: `${baseUrl}/${supplier_id}`,
             contentType: contentType,
             data: '',
-        })
+        });
 
         ajax.done(function(res){
-            clear_form_data()
-            flash_message("supplier has been Deleted!")
+            clear_form_data();
+            flash_message("supplier has been Deleted!");
         });
 
         ajax.fail(function(res){
-            flash_message("Server error!")
+            flash_message("Server error!");
         });
     });
 
@@ -159,57 +159,33 @@ $(function () {
     // ****************************************
 
     $("#clear-btn").click(function () {
-        clear_form_data()
+        clear_form_data();
     });
 
     // ****************************************
-    // Search for a supplier
+    // Search for a Supplier
     // ****************************************
 
     $("#search-btn").click(function () {
 
-        let name = $("#supplier_name").val();
-        let address = $("#supplier_address").val();
-        let email = $("#supplier_email").val();
-        let products = $("#supplier_products").val().trim();
+        let name = 'name='+$("#supplier_name").val();
+        let address = 'address='+$("#supplier_address").val();
+        let email = 'email='+$("#supplier_email").val();
+        let products = 'products='+$("#supplier_products").val().trim();
 
-        let queryString = ""
-
-        if (name) {
-            queryString += 'name=' + name
-        }
-        if (address) {
-            if (queryString.length > 0) {
-                queryString += '&address=' + address
-            } else {
-                queryString += 'address=' + address
-            }
-        }
-        if (email) {
-            if (queryString.length > 0) {
-                queryString += '&email=' + email
-            } else {
-                queryString += 'email=' + email
-            }
-        }
-        if (products) {
-            if (queryString.length > 0) {
-                queryString += '&products=' + products
-            } else {
-                queryString += 'products=' + products
-            }
-        }
+        let queryString = [name, address, email, products].filter(keyword => keyword[keyword.length-1] !== "=").join('&');
 
         let ajax = $.ajax({
             type: "GET",
             url: `${baseUrl}?${queryString}`,
             contentType: contentType,
             data: ''
-        })
+        });
 
         ajax.fail(function(res){
-            clear_form_data()
-            flash_message(res.responseJSON.message)
+            clear_form_data();
+            $("#search_results").empty();
+            flash_message(res.responseJSON.error);
         });
 
         ajax.done(function(res){
@@ -223,25 +199,25 @@ $(function () {
             header += '<th style="width:10%">Email</th></tr>'
             header += '<th style="width:10%">Products</th></tr>'
             $("#search_results").append(header);
-            let firstSupplier = ""
+            let firstSupplier = "";
             for(let i = 0; i < res.length; i++) {
                 let supplier = res[i];
                 let row = "<tr><td>"+supplier.id+"</td><td>"+supplier.name+"</td><td>"+supplier.address+"</td><td>"+supplier.email+"</td></tr>"+supplier.products.map(String).join(", ")+"</td></tr>";
                 $("#search_results").append(row);
                 if (i == 0) {
-                    firstSupplier = supplier
+                    firstSupplier = supplier;
                 }
-            }
+            };
 
             $("#search_results").append('</table>');
 
             // copy the first result to the form
 
             if (firstSupplier != "") {
-                update_form_data(firstSupplier)
+                update_form_data(firstSupplier);
             }
 
-            flash_message("Success")
+            flash_message("Success");
         });
     });
 

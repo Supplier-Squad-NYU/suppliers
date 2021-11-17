@@ -49,13 +49,8 @@ class Supplier(db.Model):
         self._check_email(self.email)
         self._check_address(self.address)
         self._check_product_ids(self.products)
-
         self.products = sorted(set(self.products))
-
-        if (self.email is None and self.address is None) or\
-                (self.email == "" and self.address == ""):
-            raise MissingInfo("At least one contact method "
-                              "(email or address) is required")
+        self._check_contact_methods()
 
     # def __repr__(self):
     #     return "<Supplier %r, id=%s>" % (self.name, self.id)
@@ -203,10 +198,7 @@ class Supplier(db.Model):
 
         self.products = sorted(set(self.products))
 
-        if (self.email is None and self.address is None) or\
-                (self.email == "" and self.address == ""):
-            raise MissingInfo("At least one contact method "
-                              "(email or address) is required")
+        self._check_contact_methods()
         db.session.commit()
         return self
 
@@ -295,3 +287,9 @@ class Supplier(db.Model):
                                "for product ids, got %s" % type(product_ids))
         for id in product_ids:
             self._check_product_id(id)
+
+    def _check_contact_methods(self) -> None:
+        if (self.email is None and self.address is None) or\
+                (self.email == "" and self.address == ""):
+            raise MissingInfo("At least one contact method "
+                              "(email or address) is required")

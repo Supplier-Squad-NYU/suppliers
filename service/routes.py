@@ -87,10 +87,7 @@ def get_supplier_by_attribute() -> Tuple[Response, int]:
         app.logger.info('Reads a supplier with {}'.
                         format(json.dumps(supplier_info)))
 
-    #message = {}
     message = [supplier.serialize_to_dict() for supplier in suppliers]
-    #for supplier in suppliers:
-    #   message[supplier.id] = supplier.serialize_to_dict()
     app.logger.info("Returning supplier(s): {}".
                     format(", ".join(s.name for s in suppliers)))
     return make_response(jsonify(message), status.HTTP_200_OK)

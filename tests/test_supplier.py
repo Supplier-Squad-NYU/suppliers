@@ -6,6 +6,8 @@ Test cases can be run with:
 While debugging just these tests it's convinient to use this:
     nosetests --stop tests/test_suppliers.py:TestSupplierModel
 """
+import json
+import os
 import unittest
 from werkzeug.exceptions import NotFound
 from service.supplier import Supplier, db
@@ -16,11 +18,15 @@ from service.supplier_exception \
     import MissingInfo, OutOfRange, WrongArgType,\
     UserDefinedIdError, DuplicateProduct
 
-# DATABASE_URI = os.getenv(
-#     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
-# )
-DATABASE_URI = "postgres://etclysux:xSZYUbeApTzANgkdP07RWxajX7Lo6V6T@rajje.db.elephantsql.com/etclysux"
+# DATABASE_URI = "postgres://etclysux:xSZYUbeApTzANgkdP07RWxajX7Lo6V6T@rajje.db.elephantsql.com/etclysux"
+DATABASE_URI = os.getenv(
+    "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
+)
 
+# override if we are running in Cloud Foundry
+if 'VCAP_SERVICES' in os.environ:
+    vcap = json.loads(os.environ['VCAP_SERVICES'])
+    DATABASE_URI = vcap['user-provided'][0]['credentials']['url']
 
 ######################################################################
 #  S U P P L I E R   M O D E L   T E S T   C A S E S

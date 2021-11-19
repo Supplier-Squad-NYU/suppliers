@@ -17,6 +17,8 @@ from werkzeug.exceptions import abort, BadRequest, NotFound
 from service import status, app
 from service.supplier import Supplier
 
+BASE_URL = "/api/suppliers"
+
 
 ######################################################################
 # Application Routes
@@ -28,7 +30,7 @@ def index() -> Tuple[Response, int]:
     return app.send_static_file("index.html")
 
 
-@app.route("/api/suppliers", methods=["POST"])
+@app.route(BASE_URL, methods=["POST"])
 def create_supplier() -> Tuple[Response, int]:
     """ Create a supplier and return the supplier as a dict """
     check_content_type_is_json()
@@ -47,7 +49,7 @@ def create_supplier() -> Tuple[Response, int]:
     return make_response(jsonify(message), status.HTTP_201_CREATED)
 
 
-@app.route("/api/suppliers/<int:supplier_id>", methods=["GET"])
+@app.route(BASE_URL+"/<int:supplier_id>", methods=["GET"])
 def get_supplier(supplier_id) -> Tuple[Response, int]:
     """ Read a supplier and return the supplier as a dict """
     app.logger.info('Reads a supplier with id: {}'.format(supplier_id))
@@ -58,7 +60,7 @@ def get_supplier(supplier_id) -> Tuple[Response, int]:
     return make_response(jsonify(message), status.HTTP_200_OK)
 
 
-@app.route("/api/suppliers", methods=["GET"])
+@app.route(BASE_URL, methods=["GET"])
 def get_supplier_by_attribute() -> Tuple[Response, int]:
     """ Reads suppliers satisfying required attributes
         and returns the suppliers as a dict """
@@ -85,15 +87,13 @@ def get_supplier_by_attribute() -> Tuple[Response, int]:
         app.logger.info('Reads a supplier with {}'.
                         format(json.dumps(supplier_info)))
 
-    message = {}
-    for supplier in suppliers:
-        message[supplier.id] = supplier.serialize_to_dict()
+    message = [supplier.serialize_to_dict() for supplier in suppliers]
     app.logger.info("Returning supplier(s): {}".
                     format(", ".join(s.name for s in suppliers)))
     return make_response(jsonify(message), status.HTTP_200_OK)
 
 
-@app.route("/api/suppliers/<int:supplier_id>", methods=["PUT"])
+@app.route(BASE_URL+"/<int:supplier_id>", methods=["PUT"])
 def update_supplier(supplier_id: int) -> Tuple[Response, int]:
     """
     Updates a supplier with the provided supplier id
@@ -110,7 +110,7 @@ def update_supplier(supplier_id: int) -> Tuple[Response, int]:
     return make_response(jsonify(message), status.HTTP_200_OK)
 
 
-@app.route("/api/suppliers/<int:supplier_id>/products", methods=["POST"])
+@app.route(BASE_URL+"/<int:supplier_id>/products", methods=["POST"])
 def add_product(supplier_id: int) -> Tuple[Response, int]:
     """
     Adds the provided list of products to a supplier
@@ -129,7 +129,7 @@ def add_product(supplier_id: int) -> Tuple[Response, int]:
         raise BadRequest("products not provided")
 
 
-@app.route("/api/suppliers/<int:supplier_id>", methods=["DELETE"])
+@app.route(BASE_URL+"/<int:supplier_id>", methods=["DELETE"])
 def delete_supplier(supplier_id: int) -> Tuple[Response, int]:
     """
     Deletes a supplier with the provided supplier id

@@ -17,19 +17,19 @@ applications:
     FLASK_APP : service:app
     FLASK_DEBUG : false
     DATABASE_URI : postgres://etclysux:xSZYUbeApTzANgkdP07RWxajX7Lo6V6T@rajje.db.elephantsql.com/etclysux
-- name: nyu-supplier-service-fall2101
-  path: .
-  instances: 2
-  memory: 128M
-  routes:
-  - route: https://nyu-supplier-service-fall2101.us-south.cf.appdomain.cloud/
-  disk_quota: 1024M
-  buildpacks: 
-  - python_buildpack
-  timeout: 180
-  services:
-  - ElephantSQL
-  env:
-    FLASK_APP : service:app
-    FLASK_DEBUG : false
-    DATABASE_URI : postgres://aplcyqcc:QRk6pnQJsfYwaCGnFf-Pgk8SUdzL5Wck@fanny.db.elephantsql.com/aplcyqcc
+# - name: nyu-supplier-service-fall2101
+#   path: .
+#   instances: 2
+#   memory: 128M
+#   routes:
+#   - route: https://nyu-supplier-service-fall2101.us-south.cf.appdomain.cloud/
+#   disk_quota: 1024M
+#   buildpacks: 
+#   - python_buildpack
+#   timeout: 180
+#   services:
+#   - ElephantSQL
+#   env:
+#     FLASK_APP : service:app
+#     FLASK_DEBUG : false
+#     DATABASE_URI : postgres://aplcyqcc:QRk6pnQJsfYwaCGnFf-Pgk8SUdzL5Wck@fanny.db.elephantsql.com/aplcyqcc

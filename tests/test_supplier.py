@@ -19,9 +19,8 @@ from service.supplier_exception \
 # DATABASE_URI = os.getenv(
 #     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
 # )
-
-
 DATABASE_URI = "postgres://etclysux:xSZYUbeApTzANgkdP07RWxajX7Lo6V6T@rajje.db.elephantsql.com/etclysux"
+
 
 ######################################################################
 #  S U P P L I E R   M O D E L   T E S T   C A S E S

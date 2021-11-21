@@ -221,4 +221,84 @@ $(function () {
         });
     });
 
+    // ****************************************
+    // List all Suppliers
+    // ****************************************
+
+    $("#list-btn").click(function () {
+
+        let ajax = $.ajax({
+            type: "GET",
+            url: `${baseUrl}`,
+            contentType: contentType,
+            data: ''
+        });
+
+        ajax.fail(function(res){
+            clear_form_data();
+            $("#list_results").empty();
+            flash_message(res.responseJSON.error);
+        });
+
+        ajax.done(function(res){
+            // alert(res.toSource())
+            $("#list_results").empty();
+            $("#list_results").append('<table class="table-striped" cellpadding="20">');
+            let header = '<tr>'
+            header += '<th style="width:10%">ID</th>'
+            header += '<th style="width:10%">Name</th>'
+            header += '<th style="width:10%">Address</th>'
+            header += '<th style="width:10%">Email</th></tr>'
+            header += '<th style="width:10%">Products</th></tr>'
+            $("#list_results").append(header);
+            let firstSupplier = "";
+            for(let i = 0; i < res.length; i++) {
+                let supplier = res[i];
+                let row = "<tr><td>"+supplier.id+"</td><td>"+supplier.name+"</td><td>"+supplier.address+"</td><td>"+supplier.email+"</td></tr>"+supplier.products.map(String).join(", ")+"</td></tr>";
+                $("#list_results").append(row);
+                if (i == 0) {
+                    firstSupplier = supplier;
+                }
+            };
+
+            $("#list_results").append('</table>');
+
+            // copy the first result to the form
+            if (firstSupplier != "") {
+                update_form_data(firstSupplier);
+            }
+
+            flash_message("Success");
+        });
+    });
+
+    // ****************************************
+    // Add Products for a Supplier
+    // ****************************************
+
+    $("#add_products-btn").click(function () {
+
+        let supplier_id = $("#supplier_id").val();
+        let products = JSON.parse("[" + $("#supplier_products").val() + "]");
+        let data = {
+            "products": products
+        }
+
+        let ajax = $.ajax({
+            type: "POST",
+            url: `${baseUrl}/${supplier_id}/products`,
+            contentType: contentType,
+            data: JSON.stringify(data)
+        });
+
+        ajax.done(function(res){
+            update_form_data(res);
+            flash_message("Success");
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.error);
+        });
+    });
+
 })

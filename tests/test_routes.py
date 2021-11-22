@@ -368,7 +368,7 @@ class TestSupplierServer(unittest.TestCase):
         Delete a supplier which does not exist
         """
         resp = self.app.delete("{}/0".format(BASE_URL))
-        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_supplier_successful_case(self):
         """
@@ -397,7 +397,5 @@ class TestSupplierServer(unittest.TestCase):
         # verify that it has been deleted and cannot be found
         resp = self.app.get("{}/{}".format(BASE_URL, test_supplier.id))
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
-
-        # verify that it has been deleted and it still returns 204
         resp = self.app.delete("{}/{}".format(BASE_URL, test_supplier.id))
-        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)

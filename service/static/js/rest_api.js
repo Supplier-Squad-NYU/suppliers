@@ -150,7 +150,7 @@ $(function () {
         });
 
         ajax.fail(function(res){
-            flash_message("Server error!");
+            flash_message("404 Not Found");
         });
     });
 

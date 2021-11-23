@@ -277,7 +277,7 @@ $(function () {
     // Add Products for a Supplier
     // ****************************************
 
-    $("#add_products-btn").click(function () {
+    $("#addproducts-btn").click(function () {
 
         let supplier_id = $("#supplier_id").val();
         let products = JSON.parse("[" + $("#supplier_products").val() + "]");

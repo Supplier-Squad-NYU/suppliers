@@ -36,7 +36,8 @@ Vagrant.configure(2) do |config|
   ############################################################
   config.vm.provider :docker do |docker, override|
     override.vm.box = nil
-    docker.image = "rofrano/vagrant-provider:ubuntu"
+    override.vm.hostname = "debian"
+    docker.image = "rofrano/vagrant-provider:debian"
     docker.remains_running = true
     docker.has_ssh = true
     docker.privileged = true
@@ -78,6 +79,9 @@ Vagrant.configure(2) do |config|
     
     # Need PostgreSQL development library to compile on arm64
     apt-get install -y libpq-dev
+
+    # Install Chromium Driver
+    apt-get install -y chromium-driver
 
     # Create a Python3 Virtual Environment and Activate it in .profile
     sudo -H -u vagrant sh -c 'python3 -m venv ~/venv'

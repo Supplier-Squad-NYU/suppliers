@@ -23,20 +23,8 @@
         </div>
 
         <div class="col-md-12" id="form_data">
+          Create, Retrieve, Update, and Delete Suppliers:
           <div class="well">
-
-            <br>
-            List all Suppliers
-            <div class="form-horizontal">
-              <div class="form-group">
-                <div class="col-sm-4">
-                  <button type="submit" class="btn btn-primary" id="list-btn">List</button>
-                </div>
-              </div>
-            </div> <!-- form div -->
-
-            <br>
-            Retrive or Delete a Supplier:
             <div class="form-horizontal">
               <div class="form-group">
                 <label class="control-label col-sm-2" for="supplier_id">Supplier ID:</label>
@@ -50,27 +38,16 @@
               </div>
             </div> <!-- form div -->
 
-            <br>
-            Add Products for a Supplier:
             <div class="form-horizontal">
               <div class="form-group">
-                <label class="control-label col-sm-2" for="supplier_id">Supplier ID:</label>
-                <div class="col-sm-6">
-                  <input type="text" class="form-control" id="supplier_id" placeholder="Enter ID of Supplier">
-                </div>
                 <label class="control-label col-sm-2" for="supplier_products">Products:</label>
-                <div class="col-sm-10">
+                <div class="col-sm-8">
                   <input type="text" class="form-control" id="supplier_products" placeholder="Enter products for Supplier (e.g., 1, 12, 9)">
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-2">
                   <button type="submit" class="btn btn-warning" id="add_products-btn">AddProducts</button>
                 </div>
               </div>
-            </div> <!-- form div -->
-
-            <br>
-            Create, Search, or Update a Supplier:
-            <div class="form-horizontal">
               <div class="form-group">
                 <label class="control-label col-sm-2" for="supplier_name">Name:</label>
                 <div class="col-sm-10">
@@ -90,13 +67,8 @@
                 </div>
               </div>
               <div class="form-group">
-                <label class="control-label col-sm-2" for="supplier_products">Products:</label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" id="supplier_products" placeholder="Enter products for Supplier (e.g., 1, 12, 9)">
-                </div>
-              </div>
-              <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
+                  <button type="submit" class="btn btn-primary" id="list-btn">List</button>
                   <button type="submit" class="btn btn-primary" id="search-btn">Search</button>
                   <button type="submit" class="btn btn-primary" id="clear-btn">Clear</button>
                   <button type="submit" class="btn btn-success" id="create-btn">Create</button>
@@ -107,26 +79,7 @@
         </div>
 
         <!-- Search Results -->
-        <br>
-        Search Results:
         <div class="table-responsive col-md-18" id="search_results">
-          <table class="table-striped">
-            <thead>
-            <tr>
-                <th class="col-md-1">ID</th>
-                <th class="col-md-2">Name</th>
-                <th class="col-md-3">Address</th>
-                <th class="col-md-3">Email</th>
-                <th class="col-md-3">Products</th>
-            </tr>
-            </thead>
-          </table>
-        </div>
-
-        <!-- List Results -->
-        <br>
-        List Results:
-        <div class="table-responsive col-md-18" id="list_results">
           <table class="table-striped">
             <thead>
             <tr>

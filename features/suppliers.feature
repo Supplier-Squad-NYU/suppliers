@@ -173,13 +173,13 @@ Scenario: Add Products to a Supplier Sad Path
         | Kitty      | abc@mail.com | UK      | 2,7,1    |
         | Tom        |              | UK      | 1        |
     When I visit the "Home Page"
-    And I set the "Name" to "Kitty"
+    And I set the "Name" to "Hello"
     And I press the "Search" button
     Then I should see the message "Success"
-    And I should see "Kitty" in the "Name" field
-    And I should see "abc@mail.com" in the "Email" field
-    And I should see "UK" in the "Address" field
-    And I should see "2, 7, 1" in the "Products" field
+    And I should see "Hello" in the "Name" field
+    And I should see "xyz@mail.com" in the "Email" field
+    And I should see "US" in the "Address" field
+    And I should see "3, 4" in the "Products" field
     When I copy the "Id" field
     And I press the "Clear" button
     Then the "Id" field should be empty
@@ -188,6 +188,6 @@ Scenario: Add Products to a Supplier Sad Path
     And the "Address" field should be empty
     And the "Products" field should be empty
     When I paste the "Id" field
-    And I set the "Products" to "2,5"
+    And I set the "Products" to "4,5"
     And I press the "AddProducts" button
-    Then I should see the message "400 Bad Request"
+    Then I should see the message "Duplicated products"

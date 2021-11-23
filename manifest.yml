@@ -1,12 +1,12 @@
 ---
 # This manifest deploys a Python Flask application with a pg database
 applications:
-- name: nyu-supplier-service-fall2101-dev
+- name: nyu-supplier-service-fall2101-wed-dev
   path: .
   instances: 2
   memory: 128M
   routes:
-  - route: https://nyu-supplier-service-fall2101-dev.us-south.cf.appdomain.cloud/
+  - route: https://nyu-supplier-service-fall2101-wed-dev.us-south.cf.appdomain.cloud/
   disk_quota: 1024M
   buildpacks: 
   - python_buildpack

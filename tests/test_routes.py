@@ -1,4 +1,6 @@
+import json
 import logging
+import os
 import unittest
 
 
@@ -11,12 +13,15 @@ from .factories import SupplierFactory
 # uncomment for debugging failing tests
 logging.disable(logging.CRITICAL)
 
-# DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///../db/test.db')
+DATABASE_URI = os.getenv(
+    "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
+)
 
-# DATABASE_URI = os.getenv(
-#     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
-# )
-DATABASE_URI = "postgres://etclysux:xSZYUbeApTzANgkdP07RWxajX7Lo6V6T@rajje.db.elephantsql.com/etclysux"
+# override if we are running in Cloud Foundry
+if 'VCAP_SERVICES' in os.environ:
+    vcap = json.loads(os.environ['VCAP_SERVICES'])
+    DATABASE_URI = vcap['user-provided'][0]['credentials']['url']
+# DATABASE_URI = "postgres://etclysux:xSZYUbeApTzANgkdP07RWxajX7Lo6V6T@rajje.db.elephantsql.com/etclysux"
 BASE_URL = "/api/suppliers"
 
 CONTENT_TYPE_JSON = "application/json"

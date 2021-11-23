@@ -3,11 +3,11 @@ Supplier Store Service
 
 Paths:
 ------
-GET /suppliers - Returns a list all of the Suppliers
-GET /suppliers/{id} - Returns the Supplier with a given id number
-POST /suppliers - creates a new Supplier record in the database
-PUT /suppliers/{id} - updates a Supplier record in the database
-DELETE /suppliers/{id} - deletes a Supplier record in the database
+GET /api/suppliers - Returns a list all of the Suppliers
+GET /api/suppliers/{id} - Returns the Supplier with a given id number
+POST /api/suppliers - creates a new Supplier record in the database
+PUT /api/suppliers/{id} - updates a Supplier record in the database
+DELETE /api/suppliers/{id} - deletes a Supplier record in the database
 """
 
 import json
@@ -142,11 +142,11 @@ def delete_supplier(supplier_id: int) -> Tuple[Response, int]:
         supplier.delete()
         app.logger.info(
             "Supplier with id {} has been deleted.".format(supplier_id))
+        return make_response(jsonify({}), status.HTTP_204_NO_CONTENT)
     except NotFound:
         app.logger.info(
             "Supplier with id {} does not exist.".format(supplier_id))
-    finally:
-        return make_response(jsonify({}), status.HTTP_204_NO_CONTENT)
+        raise NotFound("Supplier Not Found")
 
 
 ######################################################################

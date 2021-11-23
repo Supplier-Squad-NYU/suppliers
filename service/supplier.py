@@ -291,5 +291,5 @@ class Supplier(db.Model):
     def _check_contact_methods(self) -> None:
         if (self.email is None and self.address is None) or\
                 (self.email == "" and self.address == ""):
-            raise MissingInfo("At least one contact method "
+            raise MissingInfo("400 Bad Request: At least one contact method "
                               "(email or address) is required")

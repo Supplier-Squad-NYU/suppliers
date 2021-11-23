@@ -84,6 +84,18 @@ Scenario: Search a Supplier by Attributes Happy Path
     And I should see "Tom" in the results
     And I should not see "Kitty" in the results
 
+Scenario: List all Suppliers Happy Path
+    Given the following suppliers
+        | name       | email        | address | products |
+        | Hello      | xyz@mail.com | US      | 3,4      |
+        | Kitty      | abc@mail.com | UK      | 2,7,1    |
+        | Tom        |              | UK      | 1        |
+    When I visit the "Home Page"
+    And I press the "List" button
+    Then I should see "Hello" in the results
+    And I should see "Kitty" in the results
+    And I should see "Tom" in the results
+
 Scenario: Search a Supplier by ID Happy Path
     Given the following suppliers
         | name       | email        | address | products |
@@ -97,6 +109,36 @@ Scenario: Search a Supplier by ID Happy Path
     And I PRESS the "Retrieve" button
     Then I should see "Kitty" in the "Name" field
 
+Scenario: Add Products to a Supplier Happy Path
+    Given the following suppliers
+        | name       | email        | address | products |
+        | Hello      | xyz@mail.com | US      | 3,4      |
+        | Kitty      | abc@mail.com | UK      | 2,7,1    |
+        | Tom        |              | UK      | 1        |
+    When I visit the "Home Page"
+    And I set the "Name" to "Hello"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "Hello" in the "Name" field
+    And I should see "xyz@mail.com" in the "Email" field
+    And I should see "US" in the "Address" field
+    And I should see "3, 4" in the "Products" field
+    When I copy the "Id" field
+    And I press the "Clear" button
+    Then the "Id" field should be empty
+    And the "Name" field should be empty
+    And the "Email" field should be empty
+    And the "Address" field should be empty
+    And the "Products" field should be empty
+    When I paste the "Id" field
+    And I set the "Products" to "5,6"
+    And I press the "AddProducts" button
+    Then I should see the message "Success"
+    And I should see "Hello" in the "Name" field
+    And I should see "xyz@mail.com" in the "Email" field
+    And I should see "US" in the "Address" field
+    And I should see "3, 4, 5, 6" in the "Products" field
+    
 Scenario: Create a Supplier Sad Path
     When I visit the "Home Page"
     And I set the "Name" to "KeQing"
@@ -123,3 +165,29 @@ Scenario: Search Suppliers Sad Path
     When I set the "ID" to "1"
     And I press the "Retrieve" button
     Then I should see the message "404 Not Found"
+
+Scenario: Add Products to a Supplier Sad Path
+    Given the following suppliers
+        | name       | email        | address | products |
+        | Hello      | xyz@mail.com | US      | 3,4      |
+        | Kitty      | abc@mail.com | UK      | 2,7,1    |
+        | Tom        |              | UK      | 1        |
+    When I visit the "Home Page"
+    And I set the "Name" to "Hello"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "Hello" in the "Name" field
+    And I should see "xyz@mail.com" in the "Email" field
+    And I should see "US" in the "Address" field
+    And I should see "3, 4" in the "Products" field
+    When I copy the "Id" field
+    And I press the "Clear" button
+    Then the "Id" field should be empty
+    And the "Name" field should be empty
+    And the "Email" field should be empty
+    And the "Address" field should be empty
+    And the "Products" field should be empty
+    When I paste the "Id" field
+    And I set the "Products" to "4,5"
+    And I press the "AddProducts" button
+    Then I should see the message "Duplicated products"

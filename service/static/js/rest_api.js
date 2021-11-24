@@ -196,13 +196,13 @@ $(function () {
             header += '<th style="width:10%">ID</th>'
             header += '<th style="width:10%">Name</th>'
             header += '<th style="width:10%">Address</th>'
-            header += '<th style="width:10%">Email</th></tr>'
+            header += '<th style="width:10%">Email</th>'
             header += '<th style="width:10%">Products</th></tr>'
             $("#search_results").append(header);
             let firstSupplier = "";
             for(let i = 0; i < res.length; i++) {
                 let supplier = res[i];
-                let row = "<tr><td>"+supplier.id+"</td><td>"+supplier.name+"</td><td>"+supplier.address+"</td><td>"+supplier.email+"</td></tr>"+supplier.products.map(String).join(", ")+"</td></tr>";
+                let row = "<tr><td>"+supplier.id+"</td><td>"+supplier.name+"</td><td>"+supplier.address+"</td><td>"+supplier.email+"</td><td>"+supplier.products.map(String).join(", ")+"</td></tr>";
                 $("#search_results").append(row);
                 if (i == 0) {
                     firstSupplier = supplier;
@@ -248,13 +248,13 @@ $(function () {
             header += '<th style="width:10%">ID</th>'
             header += '<th style="width:10%">Name</th>'
             header += '<th style="width:10%">Address</th>'
-            header += '<th style="width:10%">Email</th></tr>'
+            header += '<th style="width:10%">Email</th>'
             header += '<th style="width:10%">Products</th></tr>'
             $("#search_results").append(header);
             let firstSupplier = "";
             for(let i = 0; i < res.length; i++) {
                 let supplier = res[i];
-                let row = "<tr><td>"+supplier.id+"</td><td>"+supplier.name+"</td><td>"+supplier.address+"</td><td>"+supplier.email+"</td></tr>"+supplier.products.map(String).join(", ")+"</td></tr>";
+                let row = "<tr><td>"+supplier.id+"</td><td>"+supplier.name+"</td><td>"+supplier.address+"</td><td>"+supplier.email+"</td><td>"+supplier.products.map(String).join(", ")+"</td></tr>";
                 $("#search_results").append(row);
                 if (i == 0) {
                     firstSupplier = supplier;

@@ -160,6 +160,7 @@ $(function () {
 
     $("#clear-btn").click(function () {
         clear_form_data();
+        $("#search_results").empty();
     });
 
     // ****************************************

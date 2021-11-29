@@ -17,14 +17,14 @@ def step_impl(context):
     """ Delete all suppliers and load new ones """
     headers = {'Content-Type': 'application/json'}
     # list all of the suppliers and delete them one by one
-    context.resp = requests.get(context.base_url + '/api/suppliers',
+    context.resp = requests.get(context.base_url + '/suppliers',
                                 headers=headers)
     expect(context.resp.status_code).to_equal(200)
     for supplier in context.resp.json():
-        context.resp = requests.delete(context.base_url+'/api/suppliers/'+str(supplier["id"]), headers=headers)
+        context.resp = requests.delete(context.base_url+'/suppliers/'+str(supplier["id"]), headers=headers)
         expect(context.resp.status_code).to_equal(204)
     # load the database with new supplierss
-    create_url = context.base_url + '/api/suppliers'
+    create_url = context.base_url + '/suppliers'
     for row in context.table:
         data = {
             "name": row['name'],

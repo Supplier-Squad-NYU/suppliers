@@ -3,11 +3,11 @@ Supplier Store Service
 
 Paths:
 ------
-GET /api/suppliers - Returns a list all of the Suppliers
-GET /api/suppliers/{id} - Returns the Supplier with a given id number
-POST /api/suppliers - creates a new Supplier record in the database
-PUT /api/suppliers/{id} - updates a Supplier record in the database
-DELETE /api/suppliers/{id} - deletes a Supplier record in the database
+GET /suppliers - Returns a list all of the Suppliers
+GET /suppliers/{id} - Returns the Supplier with a given id number
+POST /suppliers - creates a new Supplier record in the database
+PUT /suppliers/{id} - updates a Supplier record in the database
+DELETE /suppliers/{id} - deletes a Supplier record in the database
 """
 
 import json
@@ -17,7 +17,7 @@ from werkzeug.exceptions import abort, BadRequest, NotFound
 from service import status, app
 from service.supplier import Supplier
 
-BASE_URL = "/api/suppliers"
+BASE_URL = "/suppliers"
 
 
 ######################################################################

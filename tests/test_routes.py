@@ -22,7 +22,7 @@ if 'VCAP_SERVICES' in os.environ:
     vcap = json.loads(os.environ['VCAP_SERVICES'])
     DATABASE_URI = vcap['user-provided'][0]['credentials']['url']
 # DATABASE_URI = "postgres://etclysux:xSZYUbeApTzANgkdP07RWxajX7Lo6V6T@rajje.db.elephantsql.com/etclysux"
-BASE_URL = "/api/suppliers"
+BASE_URL = "/suppliers"
 
 CONTENT_TYPE_JSON = "application/json"
 
@@ -85,11 +85,16 @@ class TestSupplierServer(unittest.TestCase):
         resp = self.app.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
+    def test_UI_home(self):
+        """Test the UI Home Page"""
+        resp = self.app.get("/api")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
     def test_create_supplier(self):
         """Create a new Supplier for testing"""
         test_supplier = {
             "name": "TOM",
-            "email": "a0",
+            "email": "a0@abc.cn",
             "address": "asd",
             "products": [102, 123],
         }
@@ -118,6 +123,19 @@ class TestSupplierServer(unittest.TestCase):
         """Create a Supplier with no name"""
         test_supplier = {
             "email": "a0@purdue.edu",
+            "address": "asd",
+            "products": [102, 123],
+        }
+        logging.debug(test_supplier)
+        resp = self.app.post(
+            BASE_URL, json=test_supplier, content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_supplier_with_wrong_email(self):
+        """Create a Supplier with wrong email"""
+        test_supplier = {
+            "email": "a0purdue.edu",
             "address": "asd",
             "products": [102, 123],
         }
@@ -172,15 +190,13 @@ class TestSupplierServer(unittest.TestCase):
 
     def test_update_supplier_happy_path(self):
         """ Create a supplier and update it """
-
         # Create supplier
         test_supplier = {
             "name": "TOM",
-            "email": "a0",
+            "email": "a0@abc.cn",
             "address": "asd",
             "products": [102, 123],
         }
-        logging.debug(test_supplier)
         resp = self.app.post(
             BASE_URL, json=test_supplier, content_type=CONTENT_TYPE_JSON
         )
@@ -191,7 +207,6 @@ class TestSupplierServer(unittest.TestCase):
             "email": "test@nyu.edu",
             "address": "omg",
         }
-        logging.debug(test_supplier)
         resp = self.app.put("{}/{}".format(BASE_URL, resp.json["id"]),
                             json=test_supplier,
                             content_type=CONTENT_TYPE_JSON)
@@ -210,11 +225,33 @@ class TestSupplierServer(unittest.TestCase):
             "email": "test@nyu.edu",
             "address": "omg",
         }
-        logging.debug(test_supplier)
         resp = self.app.put("{}/{}".format(BASE_URL, 0),
                             json=test_supplier,
                             content_type=CONTENT_TYPE_JSON)
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_supplier_with_wrong_info(self):
+        """ Update a supplier with wrong info"""
+        # Create supplier
+        test_supplier = {
+            "name": "TOM",
+            "email": "a0@abc.cn",
+            "address": "asd",
+            "products": [102, 123],
+        }
+        resp = self.app.post(
+            BASE_URL, json=test_supplier, content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # Update the fields
+        test_supplier = {
+            "email": "gg",
+        }
+        resp = self.app.put("{}/{}".format(BASE_URL, resp.json["id"]),
+                            json=test_supplier,
+                            content_type=CONTENT_TYPE_JSON)
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_get_multiple_suppliers(self):
         """Get multiple suppliers with given attributes"""
@@ -277,7 +314,7 @@ class TestSupplierServer(unittest.TestCase):
         # Create supplier
         test_supplier = {
             "name": "TOM",
-            "email": "a0",
+            "email": "a0@abc.cn",
             "address": "asd",
             "products": [102, 123],
         }
@@ -306,7 +343,7 @@ class TestSupplierServer(unittest.TestCase):
         # Create supplier
         test_supplier = {
             "name": "TOM",
-            "email": "a0",
+            "email": "a0@abc.cn",
             "address": "asd",
             "products": [102, 123],
         }
@@ -333,7 +370,7 @@ class TestSupplierServer(unittest.TestCase):
         # Create supplier
         test_supplier = {
             "name": "TOM",
-            "email": "a0",
+            "email": "a0@abc.cn",
             "address": "asd",
             "products": [102, 123],
         }

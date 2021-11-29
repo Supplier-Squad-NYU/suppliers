@@ -3,6 +3,7 @@ This file defines the model for Supplier
 '''
 
 import json
+import re
 import logging
 from typing import List, Set, Union
 from flask import Flask
@@ -11,7 +12,7 @@ from sqlalchemy.dialects.postgresql import ARRAY
 from werkzeug.exceptions import NotFound
 from service.supplier_exception \
     import DuplicateProduct, MissingInfo, WrongArgType, \
-    UserDefinedIdError, OutOfRange
+    UserDefinedIdError, OutOfRange, InvalidFormat
 
 
 db = SQLAlchemy()
@@ -125,7 +126,8 @@ class Supplier(db.Model):
             return Supplier.find_all(supplier_info)[0]
         except NotFound:
             raise NotFound(
-                "Supplier with provided fields not found: {}".format(supplier_info))
+                "Supplier with provided fields not found: {}".
+                format(supplier_info))
 
     ##################################################
     # STATIC METHODS
@@ -254,10 +256,13 @@ class Supplier(db.Model):
 
     def _check_email(self, email: str) -> None:
         '''check the type of email'''
-        # email format parser may needed
+        regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
         if email is not None and not isinstance(email, str):
             raise WrongArgType("<class 'str'> expected for email, "
                                "got %s" % type(email))
+        elif email != "" and email is not None and\
+                not re.fullmatch(regex, email):
+            raise InvalidFormat("400 Bad Request: wrong email format")
 
     def _check_address(self, address: str) -> None:
         '''check the type of address'''
@@ -273,7 +278,6 @@ class Supplier(db.Model):
         elif (product_id <= 0 or product_id >= 1e15):
             raise OutOfRange("Product id is not within range (0, 1e15), "
                              "got %s" % id)
-        # also need to check if product id is in db
 
     def _check_product_ids(self, product_ids:
                            Union[List[int], Set[int]]) -> None:

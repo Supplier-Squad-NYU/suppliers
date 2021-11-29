@@ -15,7 +15,7 @@ from .factories import SupplierFactory
 from service import app
 import logging
 from service.supplier_exception \
-    import MissingInfo, OutOfRange, WrongArgType,\
+    import InvalidFormat, MissingInfo, OutOfRange, WrongArgType,\
     UserDefinedIdError, DuplicateProduct
 
 # DATABASE_URI = "postgres://etclysux:xSZYUbeApTzANgkdP07RWxajX7Lo6V6T@rajje.db.elephantsql.com/etclysux"
@@ -88,19 +88,23 @@ class TestSupplierModel(unittest.TestCase):
         self.assertRaises(MissingInfo, Supplier, name="Tom", products=[1, 2])
         self.assertRaises(MissingInfo, Supplier, name=None, address="US")
 
+    def test_construct_supplier_with_wrong_email_format(self):
+        '''construct a supplier with wrong email format'''
+        self.assertRaises(InvalidFormat, Supplier, name="Tom", email="abs")
+
     def test_construct_supplier_with_wrong_type_input(self):
         '''construct a supplier with input of wrong type'''
         self.assertRaises(WrongArgType, Supplier, name=1, address="US")
         self.assertRaises(WrongArgType, Supplier, name="Tom", address=1)
         self.assertRaises(WrongArgType, Supplier, name="foo", email=1)
         self.assertRaises(WrongArgType, Supplier, name="foo",
-                          email="abc", products=["d"])
+                          email="abc@a.cn", products=["d"])
         self.assertRaises(WrongArgType, Supplier, name="foo",
-                          email="abc", products=1)
+                          email="abc@a.cn", products=1)
 
     def test_construct_supplier_with_invalid_product_id(self):
         self.assertRaises(OutOfRange, Supplier, name="foo",
-                          email="abc", products=[-2])
+                          email="abc@a.cn", products=[-2])
 
     def test_construct_supplier_with_user_defined_id(self):
         '''construct a supplier with user defined id'''

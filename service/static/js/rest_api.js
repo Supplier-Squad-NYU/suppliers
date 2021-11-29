@@ -1,5 +1,5 @@
 $(function () {
-    const baseUrl = "/api/suppliers";
+    const baseUrl = "/suppliers";
     const contentType = "application/json";
 
     // ****************************************

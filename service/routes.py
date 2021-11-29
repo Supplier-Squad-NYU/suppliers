@@ -17,7 +17,7 @@ from werkzeug.exceptions import abort, BadRequest, NotFound
 from service import status, app
 from service.supplier import Supplier
 
-BASE_URL = "/api/suppliers"
+BASE_URL = "/suppliers"
 
 
 ######################################################################
@@ -25,6 +25,13 @@ BASE_URL = "/api/suppliers"
 ######################################################################
 @app.route("/")
 def index() -> Tuple[Response, int]:
+    """ Return a message about the service """
+    app.logger.info("Request for Index page")
+    return make_response(jsonify("Welcome to Supplier Service"), status.HTTP_200_OK)
+
+
+@app.route("/api")
+def index_api() -> Tuple[Response, int]:
     """ Return a message about the service """
     app.logger.info("Request for Index page")
     return app.send_static_file("index.html")

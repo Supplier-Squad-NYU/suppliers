@@ -39,7 +39,7 @@ Scenario: Delete a Supplier Happy Path
     Then I should see the message "supplier has been Deleted!"
     When I set the "Name" to "Kiddo"
     And I press the "Search" button
-    Then I should see the message "404 Not Found"
+    Then I should see the message "404 NOT FOUND"
 
 Scenario: Update a Supplier Happy Path
     Given the following suppliers
@@ -143,12 +143,12 @@ Scenario: Create a Supplier Sad Path
     When I visit the "Home Page"
     And I set the "Name" to "KeQing"
     And I press the "Create" button
-    Then I should see the message "400 Bad Request"
+    Then I should see the message "400 BAD REQUEST"
     When I press the "Clear" button
     And I set the "Name" to "KeQing"
     And I set the "Email" to "gg"
     And I press the "Create" button
-    Then I should see the message "400 Bad Request"
+    Then I should see the message "400 BAD REQUEST"
 
 Scenario: Delete a Supplier Sad Path
     Given the following suppliers
@@ -157,7 +157,7 @@ Scenario: Delete a Supplier Sad Path
     When I visit the "Home Page"
     And I set the "ID" to "0"
     And I press the "Delete" button
-    Then I should see the message "404 Not Found"
+    Then I should see the message "404 NOT FOUND"
 
 Scenario: Search Suppliers Sad Path
     Given the following suppliers
@@ -166,10 +166,10 @@ Scenario: Search Suppliers Sad Path
     When I visit the "Home Page"
     and I set the "Products" to "1,7"
     And I press the "Search" button
-    Then I should see the message "404 Not Found"
+    Then I should see the message "404 NOT FOUND"
     When I set the "ID" to "1"
     And I press the "Retrieve" button
-    Then I should see the message "404 Not Found"
+    Then I should see the message "404 NOT FOUND"
 
 Scenario: Add Products to a Supplier Sad Path
     Given the following suppliers
@@ -195,7 +195,7 @@ Scenario: Add Products to a Supplier Sad Path
     When I paste the "Id" field
     And I set the "Products" to "4,5"
     And I press the "AddProducts" button
-    Then I should see the message "Duplicated products"
+    Then I should see the message "400 BAD REQUEST"
 
 Scenario: Update a Supplier Sad Path
     Given the following suppliers
@@ -208,4 +208,13 @@ Scenario: Update a Supplier Sad Path
     And I should see "1, 2, 7" in the "Products" field
     When I set the "Email" to "UK"
     And I press the "Update" button
-    Then I should see the message "400 Bad Request"
+    Then I should see the message "400 BAD REQUEST"
+
+Scenario: Delete a Supplier Sad Path
+    Given the following suppliers
+        | name       | email        | address | products |
+        | Kitty      | abc@mail.com |         | 2,7,1    |
+    When I visit the "Home Page"
+    And I set the "ID" to "w"
+    And I press the "Retrieve" button
+    Then I should see the message "400 BAD REQUEST"

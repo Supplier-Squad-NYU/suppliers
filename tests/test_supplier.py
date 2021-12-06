@@ -9,7 +9,8 @@ While debugging just these tests it's convinient to use this:
 import json
 import os
 import unittest
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import BadRequest, NotFound
+from service import supplier_exception
 from service.supplier import Supplier, db
 from .factories import SupplierFactory
 from service import app
@@ -27,6 +28,7 @@ DATABASE_URI = os.getenv(
 if 'VCAP_SERVICES' in os.environ:
     vcap = json.loads(os.environ['VCAP_SERVICES'])
     DATABASE_URI = vcap['user-provided'][0]['credentials']['url']
+
 
 ######################################################################
 #  S U P P L I E R   M O D E L   T E S T   C A S E S
@@ -91,6 +93,10 @@ class TestSupplierModel(unittest.TestCase):
     def test_construct_supplier_with_wrong_email_format(self):
         '''construct a supplier with wrong email format'''
         self.assertRaises(InvalidFormat, Supplier, name="Tom", email="abs")
+    
+    def test_construct_supplier_with_wrong_email_format(self):
+        '''construct a supplier with wrong products format'''
+        self.assertRaises(InvalidFormat, Supplier, name="Tom", products="abs")
 
     def test_construct_supplier_with_wrong_type_input(self):
         '''construct a supplier with input of wrong type'''
@@ -172,7 +178,7 @@ class TestSupplierModel(unittest.TestCase):
         suppliers = Supplier.list()
         self.assertEqual(len(suppliers), 1)
 
-        supplier = Supplier(name="Tom", email="Tom@gmail.com", products=[11])
+        supplier = Supplier(name="Tom", email="Tom@gmail.com", products='11, 4')
         self.assertEqual(supplier.id, None)
         supplier.create()
         self.assertEqual(supplier.id, 2)
@@ -260,8 +266,18 @@ class TestSupplierModel(unittest.TestCase):
                             email="Ken@gmail.com")
         supplier.create()
         supplier.add_products([1, 3])
+        supplier.add_products("4,6")
         updated_supplier = Supplier.find_first(supplier.id)
-        self.assertEqual(updated_supplier.products, [1, 3])
+        self.assertEqual(updated_supplier.products, [1, 3, 4, 6])
+
+    def test_add_product_invalid_products(self):
+        """
+        Create a supplier without any products and add invalid products
+        """
+        supplier = Supplier(name="Ken",
+                            email="Ken@gmail.com")
+        supplier.create()
+        self.assertRaises(InvalidFormat, supplier.add_products, 'c')
 
     def test_delete_supplier(self):
         """

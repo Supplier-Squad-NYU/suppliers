@@ -27,6 +27,13 @@ BASE_URL = "/suppliers"
 def index() -> Tuple[Response, int]:
     """ Return a message about the service """
     app.logger.info("Request for Index page")
+    return make_response(jsonify("Welcome to Supplier Service"), status.HTTP_200_OK)
+
+
+@app.route("/api")
+def index_api() -> Tuple[Response, int]:
+    """ Return a message about the service """
+    app.logger.info("Request for Index page")
     return app.send_static_file("index.html")
 
 

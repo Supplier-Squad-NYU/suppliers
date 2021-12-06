@@ -97,8 +97,8 @@ class Supplier(db.Model):
         if isinstance(supplier_info, int):
             supplier_info = {'id': supplier_info}
         useless_info = []
-        for k, v in supplier_info.items():
-            if v is None:
+        for k, value in supplier_info.items():
+            if value is None:
                 useless_info.append(k)
             elif k == 'products':
                 supplier_info[k] = sorted(supplier_info[k])
@@ -187,7 +187,8 @@ class Supplier(db.Model):
         """
         self.name = data["name"] if "name" in data and data["name"] != "" else self.name
         self.email = data["email"] if "email" in data and data["email"] != "" else self.email
-        self.address = data["address"] if "address" in data and data["address"] != "" else self.address
+        self.address = data["address"] if "address" in data and data["address"] != "" \
+            else self.address
         self.products = data["products"] if "products" in data and data["products"] != []\
                                             else self.products
 

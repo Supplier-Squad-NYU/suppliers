@@ -11,6 +11,7 @@ class SupplierFactory(factory.Factory):
     """Creates fake suppliers that you don't have to feed"""
 
     class Meta:
+        """Meta Class for suppliers."""
         model = Supplier
 
     id = None  # factory.Sequence(lambda n: n)

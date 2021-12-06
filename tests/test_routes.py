@@ -1,3 +1,11 @@
+"""
+Test cases for Supplier API Service
+Test cases can be run with:
+    nosetests
+    coverage report -m
+While debugging just these tests it's convinient to use this:
+    nosetests --stop tests/test_routes.py:TestSupplierServer
+"""
 import json
 import logging
 import os
@@ -21,7 +29,8 @@ DATABASE_URI = os.getenv(
 if 'VCAP_SERVICES' in os.environ:
     vcap = json.loads(os.environ['VCAP_SERVICES'])
     DATABASE_URI = vcap['user-provided'][0]['credentials']['url']
-# DATABASE_URI = "postgres://etclysux:xSZYUbeApTzANgkdP07RWxajX7Lo6V6T@rajje.db.elephantsql.com/etclysux"
+# DATABASE_URI = \
+#   "postgres://etclysux:xSZYUbeApTzANgkdP07RWxajX7Lo6V6T@rajje.db.elephantsql.com/etclysux"
 BASE_URL = "/api/suppliers"
 
 CONTENT_TYPE_JSON = "application/json"

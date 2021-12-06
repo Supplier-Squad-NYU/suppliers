@@ -1,6 +1,10 @@
+"""
+Module: error_handlers
+"""
+
 from flask import jsonify
-from . import app, status
 from service.supplier_exception import SupplierException
+from . import app, status
 
 @app.errorhandler(SupplierException)
 def supplier_exception(error):

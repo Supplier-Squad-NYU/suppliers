@@ -21,7 +21,9 @@ def step_impl(context):
                                 headers=headers)
     expect(context.resp.status_code).to_equal(200)
     for supplier in context.resp.json():
-        context.resp = requests.delete(context.base_url+'/api/suppliers/'+str(supplier["id"]), headers=headers)
+        context.resp = requests.delete(
+            context.base_url+'/api/suppliers/'+str(supplier["id"]),
+            headers=headers)
         expect(context.resp.status_code).to_equal(204)
     # load the database with new supplierss
     create_url = context.base_url + '/api/suppliers'

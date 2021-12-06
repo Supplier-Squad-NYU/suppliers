@@ -15,7 +15,7 @@ class SupplierFactory(factory.Factory):
 
     id = None  # factory.Sequence(lambda n: n)
     name = factory.Faker("first_name")
-    email = str(name) + "@gmail.com"
+    email = str(name)[1:-1].replace(" ", "") + "@gmail.com"
     address = FuzzyChoice(
         choices=["New York", "Chicago", "Los Angeles", "San Francisco"])
     products = random.sample(range(1, 101), 3)

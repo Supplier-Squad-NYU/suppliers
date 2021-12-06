@@ -144,6 +144,11 @@ Scenario: Create a Supplier Sad Path
     And I set the "Name" to "KeQing"
     And I press the "Create" button
     Then I should see the message "400 Bad Request"
+    When I press the "Clear" button
+    And I set the "Name" to "KeQing"
+    And I set the "Email" to "gg"
+    And I press the "Create" button
+    Then I should see the message "400 Bad Request"
 
 Scenario: Delete a Supplier Sad Path
     Given the following suppliers
@@ -191,3 +196,16 @@ Scenario: Add Products to a Supplier Sad Path
     And I set the "Products" to "4,5"
     And I press the "AddProducts" button
     Then I should see the message "Duplicated products"
+
+Scenario: Update a Supplier Sad Path
+    Given the following suppliers
+        | name       | email        | address | products |
+        | Kitty      | abc@mail.com |         | 2,7,1    |
+    When I visit the "Home Page"
+    And I set the "Name" to "Kitty"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "1, 2, 7" in the "Products" field
+    When I set the "Email" to "UK"
+    And I press the "Update" button
+    Then I should see the message "400 Bad Request"

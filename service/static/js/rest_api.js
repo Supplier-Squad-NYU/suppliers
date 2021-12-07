@@ -1,5 +1,5 @@
 $(function () {
-    const baseUrl = "/suppliers";
+    const baseUrl = "/api/suppliers";
     const contentType = "application/json";
 
     // ****************************************
@@ -12,7 +12,7 @@ $(function () {
         $("#supplier_name").val(res.name);
         $("#supplier_address").val(res.address);
         $("#supplier_email").val(res.email);
-        $("#supplier_products").val(res.products.map(String).join(", "));
+        $("#supplier_products").val(res.products.substring(1, res.products.length-1));
     }
 
     /// Clears all form fields
@@ -38,7 +38,7 @@ $(function () {
         let name = $("#supplier_name").val();
         let address = $("#supplier_address").val();
         let email = $("#supplier_email").val();
-        let products = JSON.parse("[" + $("#supplier_products").val() + "]");
+        let products = $("#supplier_products").val();
 
         let data = {
             "name": name,
@@ -46,21 +46,19 @@ $(function () {
             "email": email,
             "products": products
         };
-
         let ajax = $.ajax({
             type: "POST",
             url: baseUrl,
             contentType: contentType,
             data: JSON.stringify(data),
         });
-
         ajax.done(function(res){
             update_form_data(res);
             flash_message("Success");
         });
 
         ajax.fail(function(res){
-            flash_message(res.responseJSON.error);
+            flash_message(res.responseJSON.message);
         });
     });
 
@@ -74,7 +72,7 @@ $(function () {
         let name = $("#supplier_name").val();
         let address = $("#supplier_address").val();
         let email = $("#supplier_email").val();
-        let products = JSON.parse("[" + $("#supplier_products").val() + "]");
+        let products = $("#supplier_products").val();
 
         let data = {
             "name": name,
@@ -96,7 +94,7 @@ $(function () {
         });
 
         ajax.fail(function(res){
-            flash_message(res.responseJSON.error);
+            flash_message(res.responseJSON.message);
         });
 
     });
@@ -124,7 +122,7 @@ $(function () {
 
         ajax.fail(function(res){
             clear_form_data();
-            flash_message(res.responseJSON.error);
+            flash_message(res.responseJSON.message);
         });
 
     });
@@ -150,7 +148,7 @@ $(function () {
         });
 
         ajax.fail(function(res){
-            flash_message("404 Not Found");
+            flash_message(res.responseJSON.message);
         });
     });
 
@@ -186,7 +184,7 @@ $(function () {
         ajax.fail(function(res){
             clear_form_data();
             $("#search_results").empty();
-            flash_message(res.responseJSON.error);
+            flash_message(res.responseJSON.message);
         });
 
         ajax.done(function(res){
@@ -203,7 +201,7 @@ $(function () {
             let firstSupplier = "";
             for(let i = 0; i < res.length; i++) {
                 let supplier = res[i];
-                let row = "<tr><td>"+supplier.id+"</td><td>"+supplier.name+"</td><td>"+supplier.address+"</td><td>"+supplier.email+"</td><td>"+supplier.products.map(String).join(", ")+"</td></tr>";
+                let row = "<tr><td>"+supplier.id+"</td><td>"+supplier.name+"</td><td>"+supplier.address+"</td><td>"+supplier.email+"</td><td>"+supplier.products.substring(1, supplier.products.length-1)+"</td></tr>";
                 $("#search_results").append(row);
                 if (i == 0) {
                     firstSupplier = supplier;
@@ -238,7 +236,7 @@ $(function () {
         ajax.fail(function(res){
             clear_form_data();
             $("#search_results").empty();
-            flash_message(res.responseJSON.error);
+            flash_message(res.responseJSON.message);
         });
 
         ajax.done(function(res){
@@ -255,7 +253,7 @@ $(function () {
             let firstSupplier = "";
             for(let i = 0; i < res.length; i++) {
                 let supplier = res[i];
-                let row = "<tr><td>"+supplier.id+"</td><td>"+supplier.name+"</td><td>"+supplier.address+"</td><td>"+supplier.email+"</td><td>"+supplier.products.map(String).join(", ")+"</td></tr>";
+                let row = "<tr><td>"+supplier.id+"</td><td>"+supplier.name+"</td><td>"+supplier.address+"</td><td>"+supplier.email+"</td><td>"+supplier.products.substring(1, supplier.products.length-1)+"</td></tr>";
                 $("#search_results").append(row);
                 if (i == 0) {
                     firstSupplier = supplier;
@@ -281,7 +279,7 @@ $(function () {
     $("#addproducts-btn").click(function () {
 
         let supplier_id = $("#supplier_id").val();
-        let products = JSON.parse("[" + $("#supplier_products").val() + "]");
+        let products = $("#supplier_products").val();
         let data = {
             "products": products
         }
@@ -299,7 +297,7 @@ $(function () {
         });
 
         ajax.fail(function(res){
-            flash_message(res.responseJSON.error);
+            flash_message(res.responseJSON.message);
         });
     });
 

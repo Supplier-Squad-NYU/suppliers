@@ -110,7 +110,7 @@ class Supplier(db.Model):
         #                                   # need other way to log
         ret = Supplier.query.filter_by(**supplier_info).all()
         if len(ret) == 0:
-            raise NotFound("No results found")
+            raise NotFound("404 NOT FOUND")
         return ret
 
     @classmethod
@@ -123,11 +123,13 @@ class Supplier(db.Model):
         :rtype: Supplier
         """
         try:
-            return Supplier.find_all(supplier_info)[0]
+            suppliers = Supplier.find_all(supplier_info)
+            return suppliers[0]
         except NotFound:
             raise NotFound(
-                "Supplier with provided fields not found: {}".
+                "404 NOT FOUND: Supplier with provided fields {} not found".
                 format(supplier_info))
+
 
     ##################################################
     # STATIC METHODS
@@ -140,7 +142,7 @@ class Supplier(db.Model):
             data (dict): A dictionary containing the supplier data
         """
         if not isinstance(data, dict):
-            raise WrongArgType("<class 'dict'> expected for data, "
+            raise WrongArgType("400 BAD REQUEST: <class 'dict'> expected for data, "
                                "got %s" % type(data))
         id = data["id"] if "id" in data else None
         name = data["name"] if "name" in data else None
@@ -162,7 +164,7 @@ class Supplier(db.Model):
             data (str): A json-formatted string
         """
         if not isinstance(data, str):
-            raise WrongArgType("<class 'str'> expected for data, "
+            raise WrongArgType("400 BAD REQUEST: <class 'str'> expected for data, "
                                "got %s" % type(data))
         dictionary = json.loads(data)
         return Supplier.deserialize_from_dict(dictionary)
@@ -211,19 +213,23 @@ class Supplier(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    def add_products(self, products: Union[List[int], Set[int]]) -> "Supplier":
+    def add_products(self, products: Union[List[int], Set[int], str]) -> "Supplier":
         """
         Adds the list of suppliers to self and commits to database.
         Returns self
         """
-        self._check_product_ids(products)
+        if isinstance(products, str):
+            try:
+                products = list(map(int, products.strip().split(',')))
+            except ValueError:
+                raise InvalidFormat("400 BAD REQUEST: products cannot be parsed")
+        self._check_product_ids(products, False)
         current_products = self.products or []
         duplicates = set(current_products).intersection(set(products))
 
         if len(duplicates) != 0:
             raise DuplicateProduct(
-                "Duplicated products: {}".format(duplicates))
-
+                "400 BAD REQUEST: Duplicated products: {}".format(duplicates))
         new_products = list(current_products) + list(products)
         return self.update({
             "products": new_products
@@ -248,46 +254,53 @@ class Supplier(db.Model):
     ##################################################
     def _check_name(self, name: str) -> None:
         '''check the type of name'''
-        if name is None:
-            raise MissingInfo("Supplier name is required")
+        if name is None or name == "":
+            raise MissingInfo("400 BAD REQUEST: supplier name is required")
         elif not isinstance(name, str):
-            raise WrongArgType("class<'str'> expected for supplier name, "
+            raise WrongArgType("400 BAD REQUEST: class<'str'> expected for supplier name, "
                                "got %s" % type(name))
 
     def _check_email(self, email: str) -> None:
         '''check the type of email'''
         regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
         if email is not None and not isinstance(email, str):
-            raise WrongArgType("<class 'str'> expected for email, "
+            raise WrongArgType("400 BAD REQUEST: <class 'str'> expected for email, "
                                "got %s" % type(email))
         elif email != "" and email is not None and\
                 not re.fullmatch(regex, email):
-            raise InvalidFormat("400 Bad Request: wrong email format")
+            raise InvalidFormat("400 BAD REQUEST: wrong email format")
 
     def _check_address(self, address: str) -> None:
         '''check the type of address'''
         if address is not None and not isinstance(address, str):
-            raise WrongArgType("<class 'str'> expected for address, "
+            raise WrongArgType("400 BAD REQUEST: <class 'str'> expected for address, "
                                "got %s" % type(address))
 
     def _check_product_id(self, product_id: int) -> None:
         '''check the type of product'''
         if not isinstance(product_id, int):
-            raise WrongArgType("class<'int'> expected for product ID, "
+            raise WrongArgType("400 BAD REQUEST: class<'int'> expected for product ID, "
                                "got %s" % type(product_id))
         elif (product_id <= 0 or product_id >= 1e15):
-            raise OutOfRange("Product id is not within range (0, 1e15), "
+            raise OutOfRange("400 BAD REQUEST: product id is not within range (0, 1e15), "
                              "got %s" % id)
 
     def _check_product_ids(self, product_ids:
-                           Union[List[int], Set[int]]) -> None:
+                           Union[List[int], Set[int]], is_self=True) -> None:
         '''check the type of product ids'''
         if product_ids is None:
             product_ids = []
-            self.products = product_ids
+            if is_self:
+                self.products = product_ids
             return
+        elif is_self and isinstance(product_ids, str):
+            try:
+                product_ids = list(map(int, product_ids.strip().split(',')))
+                self.products = product_ids
+            except ValueError:
+                raise InvalidFormat("400 BAD REQUEST: products cannot be parsed")
         elif not isinstance(product_ids, (List, Set)):
-            raise WrongArgType("class<'List'> or class<'Set'> expected "
+            raise WrongArgType("400 BAD REQUEST: class<'List'> or class<'Set'> expected "
                                "for product ids, got %s" % type(product_ids))
         for id in product_ids:
             self._check_product_id(id)
@@ -295,5 +308,5 @@ class Supplier(db.Model):
     def _check_contact_methods(self) -> None:
         if (self.email is None and self.address is None) or\
                 (self.email == "" and self.address == ""):
-            raise MissingInfo("400 Bad Request: At least one contact method "
+            raise MissingInfo("400 BAD REQUEST: At least one contact method "
                               "(email or address) is required")

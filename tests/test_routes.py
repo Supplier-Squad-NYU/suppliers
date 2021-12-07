@@ -22,7 +22,7 @@ if 'VCAP_SERVICES' in os.environ:
     vcap = json.loads(os.environ['VCAP_SERVICES'])
     DATABASE_URI = vcap['user-provided'][0]['credentials']['url']
 # DATABASE_URI = "postgres://etclysux:xSZYUbeApTzANgkdP07RWxajX7Lo6V6T@rajje.db.elephantsql.com/etclysux"
-BASE_URL = "/suppliers"
+BASE_URL = "/api/suppliers"
 
 CONTENT_TYPE_JSON = "application/json"
 
@@ -80,11 +80,6 @@ class TestSupplierServer(unittest.TestCase):
             suppliers.append(test_supplier)
         return suppliers
 
-    def test_index(self):
-        """Test the Home Page"""
-        resp = self.app.get("/")
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-
     def test_UI_home(self):
         """Test the UI Home Page"""
         resp = self.app.get("/")
@@ -103,7 +98,6 @@ class TestSupplierServer(unittest.TestCase):
             BASE_URL, json=test_supplier, content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
-
         # Check the data is correct
         resp_supplier = resp.get_json()
         self.assertEqual(resp_supplier["name"],
@@ -116,7 +110,7 @@ class TestSupplierServer(unittest.TestCase):
                          test_supplier["address"],
                          "Address does not match")
         self.assertEqual(resp_supplier["products"],
-                         test_supplier["products"],
+                         '['+', '.join(str(i) for i in test_supplier["products"])+']',
                          "Products does not match")
 
     def test_create_supplier_without_name(self):
@@ -160,6 +154,7 @@ class TestSupplierServer(unittest.TestCase):
                             content_type=CONTENT_TYPE_JSON)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
+        test_supplier.products = '['+', '.join(str(i) for i in test_supplier.products)+']'
         self.assertEqual(data["name"],
                          test_supplier.name, "Name does not match")
         self.assertEqual(data["email"],
@@ -168,6 +163,12 @@ class TestSupplierServer(unittest.TestCase):
                          test_supplier.address, "Address does not match")
         self.assertEqual(data["products"],
                          test_supplier.products, "Products does not match")
+    
+    def test_get_supplier_invalid_id_type(self):
+        """Get a single Supplier with invalid ID type"""
+        resp = self.app.get("{}/{}".format(BASE_URL, 'type'),
+                            content_type=CONTENT_TYPE_JSON)
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_get_supplier_not_found(self):
         """Get a Supplier thats not found"""
@@ -217,7 +218,7 @@ class TestSupplierServer(unittest.TestCase):
         self.assertEqual(body["address"], "omg")
         # Verify that the other fields have not changed
         self.assertEqual(body["name"], "TOM")
-        self.assertEqual(body["products"], [102, 123])
+        self.assertEqual(body["products"], '[102, 123]')
 
     def test_update_supplier_does_not_exist(self):
         """ Update a supplier which does not exist """
@@ -245,10 +246,19 @@ class TestSupplierServer(unittest.TestCase):
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         # Update the fields
+        id = resp.json["id"]
         test_supplier = {
             "email": "gg",
         }
-        resp = self.app.put("{}/{}".format(BASE_URL, resp.json["id"]),
+        resp = self.app.put("{}/{}".format(BASE_URL, id),
+                            json=test_supplier,
+                            content_type=CONTENT_TYPE_JSON)
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+        test_supplier = {
+            "email": 1,
+        }
+        resp = self.app.put("{}/{}".format(BASE_URL, id),
                             json=test_supplier,
                             content_type=CONTENT_TYPE_JSON)
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
@@ -270,6 +280,8 @@ class TestSupplierServer(unittest.TestCase):
                      content_type=CONTENT_TYPE_JSON)
 
         resp = self.app.get("{}?products=4,2,1&name=Hutao".format(BASE_URL))
+        test_supplier['products'] = sorted(test_supplier['products'])
+        test_supplier['products'] = '['+', '.join(str(i) for i in test_supplier['products'])+']'
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 2)
@@ -277,13 +289,13 @@ class TestSupplierServer(unittest.TestCase):
                          test_supplier['name'],
                          "Name does not match")
         self.assertEqual(data[0]["products"],
-                         sorted(test_supplier['products']),
+                         test_supplier['products'],
                          "Products does not match")
         self.assertEqual(data[1]['name'],
                          test_supplier['name'],
                          "Name does not match")
         self.assertEqual(data[1]["products"],
-                         sorted(test_supplier['products']),
+                         test_supplier['products'],
                          "Products does not match")
 
     def test_get_all_suppliers(self):
@@ -294,16 +306,24 @@ class TestSupplierServer(unittest.TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(len(data), 3)
 
-    def test_all_suppliers_even_with_invalid_attributes(self):
+    def test_get_all_suppliers_even_with_invalid_attributes(self):
         """Get all suppliers even with invalid attributes"""
         self._create_suppliers(3)
         resp = self.app.get("{}?country=inatsuma".format(BASE_URL))
         data = resp.get_json()
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(len(data), 3)
+    
+    def test_get_suppliers_with_invalid_attributes(self):
+        """Get suppliers with invalid attributes"""
+        self._create_suppliers(3)
+        resp = self.app.get("{}?id=inatsuma".format(BASE_URL))
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        resp = self.app.get("{}?products=[1,k]".format(BASE_URL))
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_get_multiple_suppliers_not_existed_attributes(self):
-        """Get multiple suppliers with not exited attributes"""
+        """Get multiple suppliers with not existed attributes"""
         self._create_suppliers(3)
         resp = self.app.get("{}?products=1,2,3&name=Hutao".format(BASE_URL))
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
@@ -335,7 +355,7 @@ class TestSupplierServer(unittest.TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         body = resp.json
-        self.assertEqual(body["products"], [102, 123, 145, 1776])
+        self.assertEqual(body["products"], '[102, 123, 145, 1776]')
 
     def test_add_product_to_supplier_duplicate_products_should_fail(self):
         """ Tests that adding a duplicate product to a supplier fails"""
@@ -405,6 +425,35 @@ class TestSupplierServer(unittest.TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
+
+    def test_add_product_to_supplier_outofrange_product_id(self):
+        """ Tests that adding to a supplier with out-of-range product id"""
+
+        test_supplier = {
+            "name": "TOM",
+            "email": "a0@abc.cn",
+            "address": "asd",
+            "products": [102, 123],
+        }
+        logging.debug(test_supplier)
+        resp = self.app.post(
+            BASE_URL, json=test_supplier, content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        to_add_products = {
+            "products": [-123]
+        }
+
+        # Add to the products list using the action endpoint
+        resp = self.app.post(
+            "{}/{}/products".format(BASE_URL, resp.json["id"]),
+            json=to_add_products,
+            content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+
     def test_delete_supplier_does_not_exist(self):
         """
         Delete a supplier which does not exist
@@ -425,6 +474,7 @@ class TestSupplierServer(unittest.TestCase):
             "{}/{}".format(BASE_URL, test_supplier.id),
             content_type=CONTENT_TYPE_JSON
         )
+        test_supplier.products = '['+', '.join(str(i) for i in test_supplier.products)+']'
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["name"], test_supplier.name)

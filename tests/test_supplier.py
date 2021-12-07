@@ -14,7 +14,7 @@ from werkzeug.exceptions import NotFound
 from service import app
 from service.supplier import Supplier, db
 from service.supplier_exception \
-    import MissingInfo, OutOfRange, WrongArgType,\
+    import InvalidFormat, MissingInfo, OutOfRange, WrongArgType,\
     UserDefinedIdError, DuplicateProduct
 from .factories import SupplierFactory
 
@@ -28,6 +28,7 @@ DATABASE_URI = os.getenv(
 if 'VCAP_SERVICES' in os.environ:
     vcap = json.loads(os.environ['VCAP_SERVICES'])
     DATABASE_URI = vcap['user-provided'][0]['credentials']['url']
+
 
 ######################################################################
 #  S U P P L I E R   M O D E L   T E S T   C A S E S
@@ -90,20 +91,24 @@ class TestSupplierModel(unittest.TestCase):
         self.assertRaises(MissingInfo, Supplier, name="Tom", products=[1, 2])
         self.assertRaises(MissingInfo, Supplier, name=None, address="US")
 
+    def test_construct_supplier_with_wrong_email_format(self):
+        '''construct a supplier with wrong email format'''
+        self.assertRaises(InvalidFormat, Supplier, name="Tom", email="abs")
+
     def test_construct_supplier_with_wrong_type_input(self):
         '''construct a supplier with input of wrong type'''
         self.assertRaises(WrongArgType, Supplier, name=1, address="US")
         self.assertRaises(WrongArgType, Supplier, name="Tom", address=1)
         self.assertRaises(WrongArgType, Supplier, name="foo", email=1)
         self.assertRaises(WrongArgType, Supplier, name="foo",
-                          email="abc", products=["d"])
+                          email="abc@a.cn", products=["d"])
         self.assertRaises(WrongArgType, Supplier, name="foo",
-                          email="abc", products=1)
+                          email="abc@a.cn", products=1)
 
     def test_construct_supplier_with_invalid_product_id(self):
         '''construct a supplier with invalid product id'''
         self.assertRaises(OutOfRange, Supplier, name="foo",
-                          email="abc", products=[-2])
+                          email="abc@a.cn", products=[-2])
 
     def test_construct_supplier_with_user_defined_id(self):
         '''construct a supplier with user defined id'''
@@ -170,7 +175,7 @@ class TestSupplierModel(unittest.TestCase):
         suppliers = Supplier.list()
         self.assertEqual(len(suppliers), 1)
 
-        supplier = Supplier(name="Tom", email="Tom@gmail.com", products=[11])
+        supplier = Supplier(name="Tom", email="Tom@gmail.com", products='11, 4')
         self.assertEqual(supplier.id, None)
         supplier.create()
         self.assertEqual(supplier.id, 2)
@@ -258,8 +263,18 @@ class TestSupplierModel(unittest.TestCase):
                             email="Ken@gmail.com")
         supplier.create()
         supplier.add_products([1, 3])
+        supplier.add_products("4,6")
         updated_supplier = Supplier.find_first(supplier.id)
-        self.assertEqual(updated_supplier.products, [1, 3])
+        self.assertEqual(updated_supplier.products, [1, 3, 4, 6])
+
+    def test_add_product_invalid_products(self):
+        """
+        Create a supplier without any products and add invalid products
+        """
+        supplier = Supplier(name="Ken",
+                            email="Ken@gmail.com")
+        supplier.create()
+        self.assertRaises(InvalidFormat, supplier.add_products, 'c')
 
     def test_delete_supplier(self):
         """

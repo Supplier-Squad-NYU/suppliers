@@ -11,7 +11,6 @@ from behave import when, then
 from compare import expect, ensure
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions
 
 ID_PREFIX = 'supplier_'
@@ -20,7 +19,7 @@ ID_PREFIX = 'supplier_'
 @when('I visit the "home page"')
 def step_impl(context):
     """ Make a call to the base URL """
-    context.driver.get(context.base_url)
+    context.driver.get(context.base_url + "/")
 
 @then('I should see "{message}" in the title')
 def step_impl(context, message):
@@ -33,7 +32,6 @@ def step_impl(context, element_name, text_string):
     element = context.driver.find_element_by_id(element_id)
     element.clear()
     element.send_keys(text_string)
-
 
 @then('the "{element_name}" field should be empty')
 def step_impl(context, element_name):

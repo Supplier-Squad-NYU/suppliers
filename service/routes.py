@@ -176,9 +176,9 @@ class SupplierResource(Resource):
     @api.marshal_with(supplier_model)
     def get(self, supplier_id) -> Tuple[Response, int]:
         """ Read a supplier and return the supplier as a dict """
+        supplier_id = convert_id_to_int(supplier_id)
         app.logger.info('Reads a supplier with id: {}'.format(supplier_id))
         supplier_info = {'id': supplier_id}
-        supplier_id = convert_id_to_int(supplier_id)
         supplier = Supplier.find_first(supplier_info)
         app.logger.info("Returning suppliers: %s", supplier.name)
         message = supplier.serialize_to_dict()
@@ -302,7 +302,7 @@ class SupplierCollection(Resource):
 ######################################################################
 #  PATH: /suppliers/{id}/products
 ######################################################################
-@api.route(BASE_URL + '/<int:supplier_id>/products')
+@api.route(BASE_URL + '/<supplier_id>/products')
 @api.param('supplier_id', 'The Supplier identifier')
 @api.expect(products_list)
 class AddProductsResource(Resource):
@@ -316,6 +316,7 @@ class AddProductsResource(Resource):
         Adds the provided list of products to a supplier
         Returns the updated supplier
         """
+        supplier_id = convert_id_to_int(supplier_id)
         check_content_type_is_json()
         request_body = api.payload
         app.logger.info("request body: {}".format(request_body))

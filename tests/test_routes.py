@@ -1,3 +1,11 @@
+"""
+Test cases for Supplier API Service
+Test cases can be run with:
+    nosetests
+    coverage report -m
+While debugging just these tests it's convinient to use this:
+    nosetests --stop tests/test_routes.py:TestSupplierServer
+"""
 import json
 import logging
 import os
@@ -21,7 +29,8 @@ DATABASE_URI = os.getenv(
 if 'VCAP_SERVICES' in os.environ:
     vcap = json.loads(os.environ['VCAP_SERVICES'])
     DATABASE_URI = vcap['user-provided'][0]['credentials']['url']
-# DATABASE_URI = "postgres://etclysux:xSZYUbeApTzANgkdP07RWxajX7Lo6V6T@rajje.db.elephantsql.com/etclysux"
+# DATABASE_URI = \
+#   "postgres://etclysux:xSZYUbeApTzANgkdP07RWxajX7Lo6V6T@rajje.db.elephantsql.com/etclysux"
 BASE_URL = "/api/suppliers"
 
 CONTENT_TYPE_JSON = "application/json"
@@ -80,7 +89,7 @@ class TestSupplierServer(unittest.TestCase):
             suppliers.append(test_supplier)
         return suppliers
 
-    def test_UI_home(self):
+    def test_ui_home(self):
         """Test the UI Home Page"""
         resp = self.app.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -163,7 +172,7 @@ class TestSupplierServer(unittest.TestCase):
                          test_supplier.address, "Address does not match")
         self.assertEqual(data["products"],
                          test_supplier.products, "Products does not match")
-    
+
     def test_get_supplier_invalid_id_type(self):
         """Get a single Supplier with invalid ID type"""
         resp = self.app.get("{}/{}".format(BASE_URL, 'type'),
@@ -313,7 +322,7 @@ class TestSupplierServer(unittest.TestCase):
         data = resp.get_json()
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(len(data), 3)
-    
+
     def test_get_suppliers_with_invalid_attributes(self):
         """Get suppliers with invalid attributes"""
         self._create_suppliers(3)

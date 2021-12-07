@@ -1,16 +1,17 @@
+import atexit
 from service import app
 from service.supplier import db
-import atexit
 
 
-def OnExitApp():
+def on_exit_app():
+    """ Exit Supplier Service. """
     db.drop_all()
     db.session.close()
     db.engine.dispose()
     print("Exit Supplier Serivce")
 
 
-atexit.register(OnExitApp)
+atexit.register(on_exit_app)
 app.config["DEBUG"] = True
 
 if __name__ == "__main__":

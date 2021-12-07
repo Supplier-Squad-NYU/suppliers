@@ -11,7 +11,6 @@ from behave import when, then
 from compare import expect, ensure
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions
 
 ID_PREFIX = 'supplier_'

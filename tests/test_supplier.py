@@ -9,17 +9,17 @@ While debugging just these tests it's convinient to use this:
 import json
 import os
 import unittest
-from werkzeug.exceptions import BadRequest, NotFound
-from service import supplier_exception
-from service.supplier import Supplier, db
-from .factories import SupplierFactory
-from service import app
 import logging
+from werkzeug.exceptions import NotFound
+from service import app
+from service.supplier import Supplier, db
 from service.supplier_exception \
     import InvalidFormat, MissingInfo, OutOfRange, WrongArgType,\
     UserDefinedIdError, DuplicateProduct
+from .factories import SupplierFactory
 
-# DATABASE_URI = "postgres://etclysux:xSZYUbeApTzANgkdP07RWxajX7Lo6V6T@rajje.db.elephantsql.com/etclysux"
+# DATABASE_URI \
+#    = "postgres://etclysux:xSZYUbeApTzANgkdP07RWxajX7Lo6V6T@rajje.db.elephantsql.com/etclysux"
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
 )
@@ -65,6 +65,7 @@ class TestSupplierModel(unittest.TestCase):
     #  T E S T   C A S E S
     ######################################################################
     def supplier_repr(self):
+        """Test Supplier repr"""
         supplier = Supplier(name='foo', address="USA")
         supplier.create()
         self.assertEqual(repr(supplier), "<Supplier foo, id=1>")
@@ -93,8 +94,8 @@ class TestSupplierModel(unittest.TestCase):
     def test_construct_supplier_with_wrong_email_format(self):
         '''construct a supplier with wrong email format'''
         self.assertRaises(InvalidFormat, Supplier, name="Tom", email="abs")
-    
-    def test_construct_supplier_with_wrong_email_format(self):
+
+    def test_construct_supplier_with_wrong_product_format(self):
         '''construct a supplier with wrong products format'''
         self.assertRaises(InvalidFormat, Supplier, name="Tom", products="abs")
 
@@ -109,6 +110,7 @@ class TestSupplierModel(unittest.TestCase):
                           email="abc@a.cn", products=1)
 
     def test_construct_supplier_with_invalid_product_id(self):
+        '''construct a supplier with invalid product id'''
         self.assertRaises(OutOfRange, Supplier, name="foo",
                           email="abc@a.cn", products=[-2])
 
@@ -163,7 +165,6 @@ class TestSupplierModel(unittest.TestCase):
         json_output = supplier.serialize_to_json()
         other = Supplier.deserialize_from_json(json_output)
         self.assertEqual(supplier, other)
-        pass
 
     def test_create_suppliers(self):
         """Create a supplier and add it to the database"""

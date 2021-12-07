@@ -95,6 +95,10 @@ class TestSupplierModel(unittest.TestCase):
         '''construct a supplier with wrong email format'''
         self.assertRaises(InvalidFormat, Supplier, name="Tom", email="abs")
 
+    def test_construct_supplier_with_wrong_product_format(self):
+        '''construct a supplier with wrong products format'''
+        self.assertRaises(InvalidFormat, Supplier, name="Tom", products="abs")
+
     def test_construct_supplier_with_wrong_type_input(self):
         '''construct a supplier with input of wrong type'''
         self.assertRaises(WrongArgType, Supplier, name=1, address="US")

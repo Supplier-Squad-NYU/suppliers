@@ -64,7 +64,7 @@ nosetests
 #To run bdd tests
 behave
 
-#At this point the website will be live
+#At this point the website will be live on port 5000
 
 #exit out of the vm shell back to your host computer
 exit 

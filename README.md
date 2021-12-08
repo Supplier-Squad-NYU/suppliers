@@ -75,7 +75,7 @@ vagrant halt
 
 search [127.0.0.1:5000](http://127.0.0.1:5000/) on browser to access the website and find the URL for accessing '/suppliers' page.
 
-#To access the service deployed on the cloud:
+To access the service deployed on the cloud:
 ### Prod Service Link
 https://nyu-supplier-service-fall2101-prod.us-south.cf.appdomain.cloud/
 

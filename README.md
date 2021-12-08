@@ -9,7 +9,7 @@ the Supplier Module of a E-commerce Program
 
 ## Project Function
 This project is designed to store the information of Vendors that the commerce program gets suppliers from.
-The information stored inside includes the id, name, email address of each supplier and the suppliers that supplier provides.
+The information stored inside includes the id, name, email and address of each supplier.
 This project offers a convenient user interface on inserting, modifying, deleting, or finding the desire supplier with specific id, name, email address or list all the available suppliers in the database.
 This project also provides a microservice for insertion, deletion, modification or searching.
 
@@ -34,7 +34,7 @@ We also added Swagger annotations to the service to document our REST API and ad
 Install [Git](http://git-scm.com/downloads) for using bash commands.
 To setup the development environment, we use [Vagrant](https://www.vagrantup.com/downloads) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads). The recommended code editor is [Visual Studio Code](https://code.visualstudio.com/).
 
-The Vagrantfile installs all of the needed software to run the service. You can clone this github repository and follow the given commands to start running the service:
+The Vagrantfile installs all of the needed software to run the service. You can clone this github repository and follow the given commands to start running the service locally:
 
 ```bash
 git clone https://github.com/Supplier-Squad-NYU/suppliers.git
@@ -50,17 +50,19 @@ vagrant ssh
 cd /vagrant
 
 python3 run.py
-
-[---------------------------------------------------------
-    To display the logs use the following command instead:
-    honcho start
----------------------------------------------------------]
+or
+make run
+or
+honcho start
 
 #To run in debug mode
 make debug
 
-#To run tests
+#To run tdd tests
 nosetests
+
+#To run bdd tests
+behave
 
 #At this point the website will be live
 
@@ -73,6 +75,7 @@ vagrant halt
 
 search [127.0.0.1:5000](http://127.0.0.1:5000/) on browser to access the website and find the URL for accessing '/suppliers' page.
 
+#To access the service deployed on the cloud:
 ### Prod Service Link
 https://nyu-supplier-service-fall2101-prod.us-south.cf.appdomain.cloud/
 

@@ -73,19 +73,16 @@ vagrant halt
 
 search [127.0.0.1:5000](http://127.0.0.1:5000/) on browser to access the website and find the URL for accessing '/suppliers' page.
 
-### Prod Service Links
-
-#Suppliers UI Screen
+### Prod Service Link
 https://nyu-supplier-service-fall2101-prod.us-south.cf.appdomain.cloud/
 
-#Suppliers REST API Service
+### Swagger Documents Link
 https://nyu-supplier-service-fall2101-prod.us-south.cf.appdomain.cloud/apidocs
 
 ### API Documentation
 
  |                 URL                 | HTTP Method |                         Description                          | HTTP Return Code |
 | :---------------------------------: | :---------: | :----------------------------------------------------------: | :---------------:|
-|              /           |   **GET**   |              The Name of Rest API service, the version and URL to list all suppliers             |  HTTP_200_OK |
 |              /suppliers              |   **GET**   |              Returns a list all of the suppliers              | HTTP_200_OK |
 |           /suppliers/{id}            |   **GET**   |             Returns the supplier with a given id in JSON format             | HTTP_200_OK |
 |              /suppliers              |  **POST**   | creates a new supplier with ID and creation date auto assigned by the Database and adds it to the suppliers list | HTTP_201_CREATED |
